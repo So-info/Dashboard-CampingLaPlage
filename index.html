@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Dashboard Camping — Salariés</title>
+  <style>
+    /* ===== Palette claire (fond blanc) ===== */
+    :root{
+      --bg:#f8fafc;          /* fond général très clair */
+      --bg-2:#ffffff;        /* panneaux / topbar / nav */
+      --panel:#ffffff;
+      --muted:#f1f5f9;       /* surfaces subtiles */
+      --line:#e5e7eb;        /* bordures */
+      --text:#0f172a;        /* texte principal */
+      --text-dim:#64748b;    /* texte atténué */
+      --accent:#2563eb;      /* bleu */
+      --accent-2:#16a34a;    /* vert */
+      --danger:#dc2626;      /* rouge */
+      --shadow:0 10px 30px rgba(0,0,0,.08);
+      --radius:18px;
+      --safe-top: env(safe-area-inset-top);
+      --safe-bottom: env(safe-area-inset-bottom);
+    }
+
+    *{box-sizing:border-box} html,body{height:100%}
+    body{
+      margin:0;
+      font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial,"Noto Sans";
+      font-size:clamp(14px,2.6vw,16px);
+      line-height:1.45;
+      color:var(--text);
+      background:var(--bg);
+      padding-top:var(--safe-top);
+      padding-bottom:var(--safe-bottom)
+    }
+
+    /* Auth guard */
+    #app-view, .mobile-tabs{display:none}
+    .is-auth #login-view{display:none}
+    .is-auth #app-view{display:grid}
+    .is-auth .mobile-tabs{display:grid}
+
+    /* Components */
+    .center{min-height:100dvh;display:grid;place-items:center;padding:20px}
+    .card{
+      width:min(100%,1000px);
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:22px;position:relative;overflow:hidden
+    }
+    .card::after{
+      content:"";position:absolute;inset:-2px;border-radius:calc(var(--radius) + 2px);padding:2px;
+      background:linear-gradient(120deg,transparent, rgba(37,99,235,.25), transparent);
+      -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none
+    }
+    h1,h2,h3{margin:0 0 8px}
+    h1{font-size:clamp(22px,5vw,32px)} h2{font-size:clamp(18px,4.2vw,24px)}
+    .muted{color:var(--text-dim)}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
+    /* Inputs */
+    label{font-size:.95rem;color:var(--text-dim)} .field{display:grid;gap:6px}
+    input, select, textarea{
+      width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line);
+      background:#fff;color:var(--text);font-size:16px;min-height:44px;outline:none;
+      transition:border-color .2s, box-shadow .2s
+    }
+    textarea{min-height:90px;resize:vertical}
+    input:focus, select:focus, textarea:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(37,99,235,.15)}
+    .btn{
+      border:0;padding:12px 16px;border-radius:12px;cursor:pointer;font-weight:700;color:#fff;
+      background:linear-gradient(180deg,var(--accent),#1d4ed8);box-shadow:0 8px 16px rgba(37,99,235,.20)
+    }
+    .btn.secondary{background:#fff;color:var(--text);border:1px solid var(--line)}
+    .btn.danger{background:linear-gradient(180deg,var(--danger),#b91c1c)}
+    .btn.small{padding:8px 10px;min-height:36px;font-size:.9rem}
+    .chip{
+      display:inline-flex;align-items:center;gap:6px;font-size:.75rem;color:#334155;
+      background:var(--muted);border:1px solid #e2e8f0;border-radius:999px;padding:6px 10px
+    }
+
+    .content{padding:16px;padding-bottom:calc(88px + var(--safe-bottom))}
+    .tiles{display:grid;grid-template-columns:repeat(1,minmax(0,1fr));gap:12px;margin-top:14px}
+    .tile{
+      position:relative;background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;
+      box-shadow:0 8px 20px rgba(0,0,0,.05);cursor:pointer;transition:transform .08s ease, box-shadow .2s ease, border-color .2s
+    }
+    .tile:active{transform:translateY(1px)} .tile:hover{box-shadow:0 12px 24px rgba(0,0,0,.08);border-color:#cbd5e1}
+    .tile h3{margin:0 0 6px;font-size:1rem} .tile .kpi-n{font-size:1.6rem;font-weight:800}
+
+    .topbar{
+      display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;
+      border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20;background:var(--bg-2)
+    }
+    .logout{background:#fff;color:var(--text-dim);border:1px solid var(--line);border-radius:12px;padding:10px 12px;cursor:pointer;min-height:44px}
+    .sidebar{display:none;background:var(--bg-2)}
+    .mobile-tabs{
+      position:fixed;left:0;right:0;bottom:0;z-index:30;background:rgba(255,255,255,.92);
+      backdrop-filter:blur(10px);border-top:1px solid var(--line);
+      padding:8px max(8px,env(safe-area-inset-right)) 8px max(8px,env(safe-area-inset-left));
+      grid-template-columns:repeat(7,1fr);gap:8px
+    }
+    .mobile-tabs button{
+      width:100%;text-align:center;background:#fff;color:var(--text);border:1px solid var(--line);
+      border-radius:12px;padding:10px 8px;min-height:44px;cursor:pointer;font-weight:600
+    }
+    .mobile-tabs button.active{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,.18) inset}
+
+    /* Lists/cards */
+    .list{display:grid;gap:10px;margin-top:10px}
+    .it{border:1px solid var(--line);border-radius:14px;padding:12px;background:#fff}
+    .it .ttl{font-weight:700}
+    .it .meta{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0}
+
+    /* Chat */
+    .chat-wrap{display:grid;grid-template-rows:1fr auto;min-height:320px;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#fff}
+    .chat-list{padding:12px;display:flex;flex-direction:column;gap:10px;max-height:420px;overflow:auto;background:#fff}
+    .msg{max-width:78%;padding:10px 12px;border-radius:14px;border:1px solid var(--line);background:#f8fafc}
+    .msg.me{align-self:flex-end;background:#eef2ff;border-color:#dbeafe}
+
+    @media (min-width:680px){.tiles{grid-template-columns:repeat(3,minmax(0,1fr))}}
+    @media (min-width:900px){
+      .app{grid-template-columns:260px 1fr}
+      .sidebar{display:block;border-right:1px solid var(--line);padding:20px;position:sticky;top:0;height:100dvh}
+      .content{padding:24px;padding-bottom:24px}
+      .mobile-tabs{display:none}
+    }
+  </style>
+</head>
+<body>
+  <noscript style="color:#111;background:#fde047;padding:8px;display:block;text-align:center">
+    Activez JavaScript pour utiliser l'authentification.
+  </noscript>
+
+  <!-- ================= Connexion ================= -->
+  <main id="login-view" class="center" aria-labelledby="title-login">
+    <section class="card" role="dialog" aria-modal="true" aria-describedby="desc-login">
+      <header class="row" style="gap:12px;margin-bottom:8px">
+        <div aria-hidden="true" style="width:36px;height:36px;border-radius:12px;background:conic-gradient(from 210deg, var(--accent), var(--accent-2));filter:saturate(1.2);"></div>
+        <div>
+          <h1 id="title-login">Connexion</h1>
+          <p id="desc-login" class="muted">Entrez vos identifiants pour accéder au dashboard.</p>
+        </div>
+      </header>
+      <form id="login-form" autocomplete="off">
+        <div class="field"><label for="userId">Identifiant</label><input id="userId" name="userId" type="text" placeholder="ex: admin" required /></div>
+        <div class="field"><label for="password">Mot de passe</label><input id="password" name="password" type="password" placeholder="••••••" required /></div>
+        <div class="row" style="justify-content:space-between;align-items:center;margin-top:6px"><div class="muted" id="error"></div><button class="btn" type="submit">Se connecter</button></div>
+        <p class="muted" style="margin-top:10px;font-size:13px">Démo initiale: <code>admin / admin</code> (Admin). Vous pourrez créer d'autres comptes ensuite.</p>
+      </form>
+    </section>
+  </main>
+
+  <!-- ================= Application ================= -->
+  <div id="app-view" class="app">
+    <aside class="sidebar">
+      <div class="row" style="gap:10px;font-weight:800;letter-spacing:.3px;margin-bottom:16px">
+        <div aria-hidden="true" style="width:34px;height:34px;border-radius:12px;background:conic-gradient(from 210deg, var(--accent), var(--accent-2));filter:saturate(1.2);"></div>
+        <div>Mon Dashboard</div>
+      </div>
+      <div class="nav" role="tablist" aria-label="Onglets du dashboard">
+        <button role="tab" class="btn secondary" data-tab="accueil">🏠 Accueil</button>
+        <button role="tab" class="btn secondary" data-tab="interventions">🛠️ Interventions</button>
+        <button role="tab" class="btn secondary" data-tab="chat">💬 Chat</button>
+        <button role="tab" class="btn secondary" data-tab="personnes">👥 Personnes</button>
+        <button role="tab" class="btn secondary" data-tab="utilisateurs" id="tab-users-btn" style="display:none">👤 Utilisateurs</button>
+        <button role="tab" class="btn secondary" data-tab="rapports">📊 Rapports</button>
+        <button role="tab" class="btn secondary" data-tab="parametres">⚙️ Paramètres</button>
+      </div>
+    </aside>
+
+    <section style="display:flex;flex-direction:column;min-width:0;">
+      <header class="topbar">
+        <div id="hello"></div>
+        <div class="row" style="gap:8px">
+          <span class="chip">Rôle: <strong id="roleBadge">—</strong></span>
+          <span class="muted" id="sessionUser"></span>
+          <button class="logout" id="logoutBtn">Se déconnecter</button>
+        </div>
+      </header>
+
+      <div class="content">
+        <!-- Accueil -->
+        <div class="tab" id="tab-accueil">
+          <div class="row" style="justify-content:space-between;margin-bottom:8px"><h2 style="margin:0">Vue d'ensemble</h2><span class="chip">🏕️ Camping — Salariés</span></div>
+          <p class="muted">Réception crée les interventions, <strong>Techniciens</strong> et <strong>Ménage</strong> voient seulement leurs tâches.</p>
+          <div class="tiles" id="home-tiles">
+            <button class="tile" data-goto="interventions"><h3>🛠️ Interventions</h3><div class="kpi-n" id="kpi-interv-tech">0</div><div class="muted">Tech — Ouvertes</div></button>
+            <button class="tile" data-goto="interventions"><h3>🧹 Interventions</h3><div class="kpi-n" id="kpi-interv-men">0</div><div class="muted">Ménage — Ouvertes</div></button>
+            <button class="tile" data-goto="chat"><h3>💬 Chat</h3><div class="kpi-n" id="kpi-chat">0</div><div class="muted">Msgs non lus</div></button>
+            <button class="tile" data-goto="personnes"><h3>👥 Nombre de personnes</h3><div class="kpi-n" id="kpi-people">0</div><div class="muted">Occupants + équipe</div></button>
+          </div>
+        </div>
+
+        <!-- Interventions (séparées par équipe) -->
+        <div class="tab" id="tab-interventions" hidden>
+          <div class="row" style="justify-content:space-between"><h2>Interventions</h2><div class="row"><button id="exportCsv" class="btn secondary">⬇️ Export CSV</button></div></div>
+          <p class="muted">Vue adaptée selon votre rôle. Réception/Admin voient les deux files « Techniciens » et « Ménage ».</p>
+
+          <!-- Formulaire (visible Admin/Réception) -->
+          <form id="form-interv" class="card" style="display:none">
+            <div class="row" style="justify-content:space-between;align-items:center"><h3 style="margin-bottom:6px">➕ Nouvelle intervention</h3><span class="chip">Assignation auto selon type</span></div>
+            <div class="row" style="align-items:flex-start;gap:12px">
+              <div class="field" style="flex:1 1 160px"><label>Type</label>
+                <select name="type" required><option value="Technique">Technique</option><option value="Ménage">Ménage</option></select>
+              </div>
+              <div class="field" style="flex:1 1 160px"><label>Priorité</label>
+                <select name="prio" required><option>Normale</option><option>Haute</option><option>Urgente</option></select>
+              </div>
+              <div class="field" style="flex:2 1 240px"><label>Lieu</label><input name="lieu" placeholder="Bungalow A12, Sanitaires B..." required></div>
+            </div>
+            <div class="field"><label>Détail</label><textarea name="detail" placeholder="Décrivez le problème..." required></textarea></div>
+            <div class="row" style="justify-content:flex-end"><button class="btn" type="submit">Créer</button></div>
+          </form>
+
+          <!-- Filtres globaux (texte + statut) -->
+          <div class="row" style="margin-top:10px">
+            <input id="searchInterv" placeholder="Recherche (lieu, détail, id)" style="flex:2 1 220px">
+            <select id="filterStatus" style="flex:1 1 160px"><option value="all">Tous statuts</option><option>Ouverte</option><option>Assignée</option><option>En cours</option><option>Terminée</option></select>
+          </div>
+
+          <!-- Files séparées -->
+          <div class="row" style="margin-top:12px;align-items:flex-start">
+            <div class="card" style="flex:1 1 320px">
+              <h3>🔧 File Techniciens</h3>
+              <div class="list" id="list-tech"></div>
+            </div>
+            <div class="card" style="flex:1 1 320px">
+              <h3>🧹 File Ménage</h3>
+              <div class="list" id="list-men"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chat -->
+        <div class="tab" id="tab-chat" hidden>
+          <h2>Chat interne</h2>
+          <div class="row" style="gap:10px;margin:6px 0">
+            <select id="chatChannel"><option value="general">#général</option><option value="reception">#réception</option><option value="techniciens">#techniciens</option><option value="menage">#ménage</option><option value="interventions">#interventions</option></select>
+            <span class="chip">Rôle courant: <strong id="roleBadge2">—</strong></span>
+          </div>
+          <div class="chat-wrap">
+            <div id="chatList" class="chat-list" aria-live="polite"></div>
+            <form id="chatForm" class="row" style="padding:10px;background:var(--bg-2);border-top:1px solid var(--line)"><input id="chatMsg" placeholder="Écrire un message..." /><button class="btn" type="submit">Envoyer</button></form>
+          </div>
+        </div>
+
+        <!-- Personnes -->
+        <div class="tab" id="tab-personnes" hidden>
+          <h2>Personnes</h2>
+          <div class="row">
+            <div class="card" style="flex:1 1 280px"><h3>👨‍👩‍👧‍👦 Clients présents</h3><div class="row" style="align-items:center;gap:10px;margin-top:6px"><button class="btn secondary" data-people="clients:-5">-5</button><button class="btn secondary" data-people="clients:-1">-1</button><div class="kpi-n" id="count-clients">0</div><button class="btn secondary" data-people="clients:+1">+1</button><button class="btn secondary" data-people="clients:+5">+5</button></div></div>
+            <div class="card" style="flex:1 1 280px"><h3>🧑‍🔧 Équipe</h3><div class="row" style="align-items:center;gap:10px;margin-top:6px"><button class="btn secondary" data-people="staff:-1">-1</button><div class="kpi-n" id="count-staff">0</div><button class="btn secondary" data-people="staff:+1">+1</button></div></div>
+            <div class="card" style="flex:1 1 280px"><h3>📊 Résumé</h3><p>Total sur site: <strong id="count-total">0</strong></p></div>
+          </div>
+        </div>
+
+        <!-- Utilisateurs (Admin) -->
+        <div class="tab" id="tab-utilisateurs" hidden>
+          <h2>Gestion des utilisateurs</h2>
+          <p class="muted">Création de comptes Réception / Technicien / Ménage. (Stockage démo localStorage)</p>
+          <form id="userForm" class="card" style="margin-top:8px">
+            <div class="row">
+              <div class="field" style="flex:2 1 200px"><label>Identifiant</label><input name="u" placeholder="ex: rec01" required></div>
+              <div class="field" style="flex:2 1 200px"><label>Mot de passe</label><input name="p" placeholder="••••••" required></div>
+              <div class="field" style="flex:1 1 160px"><label>Rôle</label><select name="r"><option>Réception</option><option>Technicien</option><option>Ménage</option></select></div>
+              <div class="field" style="align-self:flex-end"><button class="btn" type="submit">Créer</button></div>
+            </div>
+          </form>
+          <div class="card" style="margin-top:12px">
+            <h3>Liste des comptes</h3>
+            <div id="userList" class="list"></div>
+          </div>
+        </div>
+
+        <!-- Rapports / Paramètres (placeholders) -->
+        <div class="tab" id="tab-rapports" hidden><h2>Rapports</h2><p class="muted">À venir.</p></div>
+        <div class="tab" id="tab-parametres" hidden><h2>Paramètres</h2><p class="muted">Préférences.</p></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Mobile Tabs -->
+  <nav class="mobile-tabs" aria-label="Navigation principale">
+    <button class="active" data-tab="accueil">🏠<br><span style="font-size:12px">Accueil</span></button>
+    <button data-tab="interventions">🛠️<br><span style="font-size:12px">Interventions</span></button>
+    <button data-tab="chat">💬<br><span style="font-size:12px">Chat</span></button>
+    <button data-tab="personnes">👥<br><span style="font-size:12px">Personnes</span></button>
+    <button id="tab-users-btn-m" style="display:none" data-tab="utilisateurs">👤<br><span style="font-size:12px">Utilisateurs</span></button>
+    <button data-tab="rapports">📊<br><span style="font-size:12px">Rapports</span></button>
+    <button data-tab="parametres">⚙️<br><span style="font-size:12px">Paramètres</span></button>
+  </nav>
+
+<script>
+/* ===== Constantes clés ===== */
+const KEY = "demo-dashboard-session";
+const SKEY = "camping-demo-state";
+const UKEY = "camping-users";
+const defaultUsers = [{ u: "admin", p: "admin", r: "Admin" }];
+
+/* ===== Gestion utilisateurs ===== */
+function getUsers() {
+  try { const u = JSON.parse(localStorage.getItem(UKEY)); return Array.isArray(u) && u.length ? u : defaultUsers; }
+  catch { return defaultUsers; }
+}
+function saveUsers(list) { localStorage.setItem(UKEY, JSON.stringify(list)); }
+function addUser(u, p, r) { const list = getUsers(); if (list.some((x) => x.u === u)) return false; list.push({ u, p, r }); saveUsers(list); return true; }
+function delUser(u) { let list = getUsers().filter((x) => x.u !== u || x.r === "Admin"); saveUsers(list); }
+
+/* ===== Auth ===== */
+function login(u, p) {
+  const user = getUsers().find((x) => x.u === u && x.p === p);
+  if (user) { localStorage.setItem(KEY, JSON.stringify({ userId: u, role: user.r, when: Date.now() })); return true; }
+  return false;
+}
+function current(){ try{ return JSON.parse(localStorage.getItem(KEY)) } catch{ return null } }
+function isLogged(){ return !!current(); }
+
+/* ===== UI Auth ===== */
+function setGreeting(){
+  const h=new Date().getHours();
+  document.getElementById("hello").textContent= h<12?"Bonjour !":(h<18?"Bon après-midi !":"Bonsoir !");
+}
+function enforceAuthUI(){
+  if(isLogged()){
+    const c=current();
+    document.body.classList.add("is-auth");
+    document.getElementById("sessionUser").textContent="Connecté : "+c.userId;
+    document.getElementById("roleBadge").textContent=c.role;
+    document.getElementById("roleBadge2").textContent=c.role;
+    const isAdmin=c.role==="Admin";
+    document.getElementById("form-interv").style.display=(isAdmin||c.role==="Réception")?"block":"none";
+    document.getElementById("tab-users-btn").style.display=isAdmin?"block":"none";
+    document.getElementById("tab-users-btn-m").style.display=isAdmin?"block":"none";
+    history.replaceState({app:true}, "", "#app");
+    renderInterventions(); renderUsers();
+  } else {
+    document.body.classList.remove("is-auth");
+    history.replaceState({app:false}, "", "#login");
+  }
+}
+
+/* ===== Etat global ===== */
+const state={ interventions:[], chat:[], people:{clients:0, staff:0} };
+function loadState(){ try{ const s=JSON.parse(localStorage.getItem(SKEY)); if(s) Object.assign(state,s);}catch{} }
+function saveState(){ localStorage.setItem(SKEY, JSON.stringify(state)); refreshAllKPIs(); }
+
+/* ===== Login ===== */
+document.getElementById("login-form").addEventListener("submit",e=>{
+  e.preventDefault();
+  const id=e.target.userId.value.trim(); const pw=e.target.password.value.trim();
+  if(login(id,pw)){ enforceAuthUI(); } else { document.getElementById("error").textContent="Identifiants invalides."; }
+});
+document.getElementById("logoutBtn").addEventListener("click",()=>{ localStorage.removeItem(KEY); enforceAuthUI(); });
+
+/* ===== Tabs ===== */
+function selectTab(name){
+  if(!isLogged()) return;
+  document.querySelectorAll(".nav button, .mobile-tabs button").forEach(b=>{
+    const a=b.dataset.tab===name; b.classList.toggle("active",a); b.setAttribute("aria-selected",a?"true":"false");
+  });
+  document.querySelectorAll(".tab").forEach(t=>t.hidden=(t.id!=="tab-"+name));
+}
+document.body.addEventListener("click",e=>{ const btn=e.target.closest("button[data-tab]"); if(btn) selectTab(btn.dataset.tab); });
+document.getElementById("home-tiles").addEventListener("click",e=>{ const b=e.target.closest("[data-goto]"); if(b) selectTab(b.dataset.goto); });
+
+/* ===== Swipe (mobile) ===== */
+let startX=0;
+document.addEventListener("touchstart",e=>{ startX=e.touches[0].clientX; });
+document.addEventListener("touchend",e=>{
+  let endX=e.changedTouches[0].clientX; let delta=endX-startX;
+  if(Math.abs(delta)>80){
+    const tabs=Array.from(document.querySelectorAll(".mobile-tabs button")).map(b=>b.dataset.tab);
+    const active=tabs.findIndex(t=>document.querySelector(`.mobile-tabs button[data-tab="${t}"]`).classList.contains("active"));
+    const next= delta<0 ? (active+1)%tabs.length : (active-1+tabs.length)%tabs.length;
+    selectTab(tabs[next]);
+  }
+});
+
+/* ===== Interventions ===== */
+const listTech=document.getElementById("list-tech");
+const listMen=document.getElementById("list-men");
+const searchInterv=document.getElementById("searchInterv");
+const filterStatus=document.getElementById("filterStatus");
+
+document.getElementById("form-interv").addEventListener("submit",e=>{
+  e.preventDefault();
+  const d=new FormData(e.target); const c=current(); const type=d.get("type"); const now=new Date().toISOString();
+  const it={
+    id:Date.now().toString().slice(-6),
+    type, prio:d.get("prio"), lieu:d.get("lieu"), detail:d.get("detail"),
+    assigne: type==="Ménage"?"Ménage":"Techniciens",
+    status:"Assignée",
+    created:now,
+    createdBy:`${c.userId} (${c.role})`,
+    handledBy:null,
+    history:[
+      { action:"Créée", by:`${c.userId} (${c.role})`, at:now },
+      { action:`Assignée à ${type==="Ménage"?"Ménage":"Techniciens"}`, by:`${c.userId} (${c.role})`, at:now }
+    ]
+  };
+  state.interventions.unshift(it); saveState(); e.target.reset(); renderInterventions();
+});
+[searchInterv, filterStatus].forEach(el=>el.addEventListener("input", renderInterventions));
+
+function renderInterventions(){
+  if(!isLogged()) return;
+  const c=current(); const q=(searchInterv.value||"").toLowerCase(); const s=filterStatus.value;
+  const filtered=state.interventions.filter(i=>
+    (s==="all" || (s==="Assignée"? i.status.startsWith("Assignée"): i.status===s)) &&
+    (i.lieu.toLowerCase().includes(q) || i.detail.toLowerCase().includes(q) || i.id.includes(q))
+  );
+  if(c.role==="Technicien" || c.role==="Ménage"){
+    renderList(listTech, filtered.filter(i=>i.assigne==="Techniciens"), c);
+    renderList(listMen, filtered.filter(i=>i.assigne==="Ménage"), c);
+    (c.role==="Technicien"?listMen:listTech).parentElement.style.opacity=.45;
+  }else{
+    listMen.parentElement.style.opacity=1; listTech.parentElement.style.opacity=1;
+    renderList(listTech, filtered.filter(i=>i.assigne==="Techniciens"), c);
+    renderList(listMen, filtered.filter(i=>i.assigne==="Ménage"), c);
+  }
+}
+function renderList(container, items, ctx){ container.innerHTML=""; items.forEach(i=>container.appendChild(itemCard(i,ctx))); }
+function itemCard(i, ctx){
+  const isReception= ctx.role==="Réception" || ctx.role==="Admin";
+  const canWork = (ctx.role==="Technicien" && i.assigne==="Techniciens") || (ctx.role==="Ménage" && i.assigne==="Ménage");
+  const baseInfo =
+    `<div class="ttl">#${i.id} • ${i.type} ${isReception?`<span class="chip">${i.prio}</span>`:''}</div>`+
+    `<div class="meta">
+      <span class="chip">Lieu: ${i.lieu}</span>
+      ${i.createdBy?`<span class="chip">Créée par: ${i.createdBy}</span>`:''}
+      <span class="chip">Statut: ${i.status}</span>
+      ${i.handledBy?`<span class="chip">Par: ${i.handledBy}</span>`:''}
+    </div>` +
+    `<div class="muted" style="margin:6px 0">${escapeHtml(i.detail)}</div>`;
+  const actions=[];
+  if(isReception) actions.push(btn("Re-assigner","assign",i.id));
+  if(canWork && (i.status==="Assignée"||i.status==="Ouverte")) actions.push(btn("En cours","start",i.id));
+  if(canWork && i.status==="En cours") actions.push(btn("Terminer","done",i.id));
+  if(isReception) actions.push(btn("Supprimer","del",i.id,"danger"));
+
+  const timeline=(i.history||[]).map(h=>`<div class="muted" style="font-size:.8rem">• ${escapeHtml(h.action)} — ${escapeHtml(h.by)} — ${new Date(h.at).toLocaleString()}</div>`).join("");
+
+  const wrap=document.createElement("div"); wrap.className="it";
+  wrap.innerHTML= baseInfo + `<div class="row">${actions.join(" ")}</div>` +
+    `<details style="margin-top:6px"><summary style="cursor:pointer">Historique</summary>${timeline || '<div class="muted" style="font-size:.85rem">Aucun événement.</div>'}</details>`;
+  return wrap;
+}
+function btn(txt,act,id,klass="secondary"){ return `<button class="btn ${klass} small" data-act="${act}" data-i="${id}">${txt}</button>`; }
+[listTech, listMen].forEach(el=> el.addEventListener("click", e=>{
+  const b=e.target.closest("[data-act]"); if(!b) return;
+  const id=b.dataset.i; const it=state.interventions.find(x=>x.id===id); if(!it) return;
+  const act=b.dataset.act; const c=current(); const now=new Date().toISOString();
+  if(act==="assign"){ it.assigne = it.assigne==="Techniciens"?"Ménage":"Techniciens"; it.status="Assignée"; it.handledBy=null; (it.history ||= []).push({ action:`Re-assignée à ${it.assigne}`, by:`${c.userId} (${c.role})`, at:now }); }
+  if(act==="start"){ it.status="En cours"; it.handledBy=`${c.userId} (${c.role})`; (it.history ||= []).push({ action:"En cours", by:`${c.userId} (${c.role})`, at:now }); }
+  if(act==="done"){ it.status="Terminée"; it.handledBy=`${c.userId} (${c.role})`; (it.history ||= []).push({ action:"Terminée", by:`${c.userId} (${c.role})`, at:now }); }
+  if(act==="del"){ (it.history ||= []).push({ action:"Supprimée", by:`${c.userId} (${c.role})`, at:now }); state.interventions=state.interventions.filter(x=>x.id!==id); }
+  saveState(); renderInterventions();
+}));
+
+/* ===== Chat ===== */
+const chatList=document.getElementById("chatList");
+const chatForm=document.getElementById("chatForm");
+const chatMsg=document.getElementById("chatMsg");
+const chatChannel=document.getElementById("chatChannel");
+chatChannel.addEventListener("change",renderChat);
+chatForm.addEventListener("submit",e=>{
+  e.preventDefault();
+  const text=(chatMsg.value||"").trim(); if(!text) return;
+  const c=current();
+  const msg={ id:Date.now(), role:c.role, user:c.userId, channel:chatChannel.value, text, when:new Date().toISOString(), read:false };
+  state.chat.push(msg); chatMsg.value=""; saveState(); renderChat();
+});
+function renderChat(){
+  chatList.innerHTML=""; const ch=chatChannel.value;
+  state.chat.filter(m=>m.channel===ch).slice(-300).forEach(m=>{
+    const d=document.createElement("div"); d.className="msg"+(m.user===current().userId?" me":"");
+    d.innerHTML=`<div class="muted" style="font-size:.8rem;margin-bottom:4px">${m.role} – ${m.user} • ${new Date(m.when).toLocaleString()}</div>${escapeHtml(m.text)}`;
+    chatList.appendChild(d); m.read=true;
+  });
+  chatList.scrollTop=chatList.scrollHeight; saveState(); refreshAllKPIs();
+}
+
+/* ===== Personnes ===== */
+document.getElementById("tab-personnes").addEventListener("click",e=>{
+  const b=e.target.closest("[data-people]"); if(!b) return;
+  const [k,d]=b.dataset.people.split(":"); state.people[k]=Math.max(0,(state.people[k]||0)+Number(d));
+  saveState(); renderPeople();
+});
+function renderPeople(){
+  const c=state.people.clients||0, s=state.people.staff||0;
+  document.getElementById("count-clients").textContent=c;
+  document.getElementById("count-staff").textContent=s;
+  document.getElementById("count-total").textContent=c+s;
+}
+
+/* ===== Utils ===== */
+function escapeHtml(s){ return (s||"").replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c])); }
+
+/* ===== Utilisateurs (Admin) ===== */
+const userForm=document.getElementById("userForm");
+const userList=document.getElementById("userList");
+userForm.addEventListener("submit", e=>{
+  e.preventDefault();
+  const f=new FormData(userForm);
+  const ok=addUser(f.get("u").trim(), f.get("p").trim(), f.get("r"));
+  if(!ok) alert("Identifiant déjà utilisé."); userForm.reset(); renderUsers();
+});
+function renderUsers(){
+  const c=current(); if(!c || c.role!=="Admin") return;
+  const list=getUsers(); userList.innerHTML="";
+  list.forEach(u=>{
+    const div=document.createElement("div"); div.className="it";
+    div.innerHTML=`<div class="ttl">${u.u} <span class="chip">${u.r}</span></div>` + (u.r!=="Admin"?`<div class="row"><button class="btn danger small" data-del="${u.u}">Supprimer</button></div>`:"");
+    userList.appendChild(div);
+  });
+}
+userList?.addEventListener("click", e=>{ const b=e.target.closest("[data-del]"); if(!b) return; delUser(b.dataset.del); renderUsers(); });
+
+/* ===== KPI ===== */
+function refreshAllKPIs(){
+  const openTech=state.interventions.filter(i=>i.assigne==="Techniciens" && i.status!=="Terminée").length;
+  const openMen=state.interventions.filter(i=>i.assigne==="Ménage" && i.status!=="Terminée").length;
+  document.getElementById("kpi-interv-tech").textContent=openTech;
+  document.getElementById("kpi-interv-men").textContent=openMen;
+  document.getElementById("kpi-people").textContent=state.people.clients + state.people.staff;
+  document.getElementById("kpi-chat").textContent=state.chat.filter(m=>!m.read).length;
+}
+
+/* ===== Init ===== */
+window.addEventListener("DOMContentLoaded",()=>{
+  setGreeting(); enforceAuthUI(); loadState(); refreshAllKPIs(); renderInterventions(); renderChat(); renderPeople();
+});
+
+/* ===== Données de démo ===== */
+if(!localStorage.getItem(SKEY)){
+  state.interventions=[
+    { id:"1001", type:"Technique", prio:"Urgente", lieu:"Bungalow A12", detail:"Panne clim", status:"Assignée", assigne:"Techniciens", created:new Date().toISOString(), createdBy:"admin (Admin)", handledBy:null,
+      history:[ {action:"Créée",by:"admin (Admin)",at:new Date().toISOString()}, {action:"Assignée à Techniciens",by:"admin (Admin)",at:new Date().toISOString()} ] },
+    { id:"1002", type:"Ménage", prio:"Normale", lieu:"Sanitaires B", detail:"Re-stock papier", status:"Assignée", assigne:"Ménage", created:new Date().toISOString(), createdBy:"admin (Admin)", handledBy:null,
+      history:[ {action:"Créée",by:"admin (Admin)",at:new Date().toISOString()}, {action:"Assignée à Ménage",by:"admin (Admin)",at:new Date().toISOString()} ] },
+  ];
+  state.chat=[ { id:1, role:"Réception", user:"rec_demo", channel:"general", text:"Bienvenue 👋", when:new Date().toISOString(), read:false } ];
+  state.people={ clients:86, staff:12 };
+  localStorage.setItem(SKEY, JSON.stringify(state));
+}
+</script>
+</body>
+</html>
