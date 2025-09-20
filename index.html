@@ -177,6 +177,31 @@
 
 /* Barre d’actions */
 .it .actions-row{ margin-top:8px; display:flex; flex-wrap:wrap; gap:8px; justify-content:flex-end; }
+/* ==== Topbar ultra-responsive ==== */
+.topbar {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.topbar .row { min-width:0; flex-wrap:wrap; justify-content:flex-end; }
+.logout { white-space:nowrap; }
+
+@media (max-width:520px){
+  .topbar{
+    grid-template-columns: 1fr;
+    grid-auto-rows: auto;
+  }
+  #hello{ order:0; }
+  .topbar .row{ order:1; justify-content:space-between; gap:6px; }
+  .chip{ padding:4px 8px; font-size:.72rem; }
+  .logout{ font-size:.9rem; padding:10px 12px; }
+}
+
+/* Eviter tout débordement horizontal surprise */
+html, body { width:100%; overflow-x:hidden; }
+.hidden{ display:none !important; }
 
   </style>
 </head>
@@ -235,12 +260,32 @@
         <div class="tab" id="tab-accueil">
           <div class="row" style="justify-content:space-between;margin-bottom:8px"><h2 style="margin:0">Vue d'ensemble</h2><span class="chip">🏕️ Camping — Salariés</span></div>
           <p class="muted">Réception crée les interventions, <strong>Techniciens</strong> et <strong>Ménage</strong> voient seulement leurs tâches.</p>
-          <div class="tiles" id="home-tiles">
-            <button class="tile" data-goto="interventions"><h3>🛠️ Interventions</h3><div class="kpi-n" id="kpi-interv-tech">0</div><div class="muted">Tech — Ouvertes</div></button>
-            <button class="tile" data-goto="interventions"><h3>🧹 Interventions</h3><div class="kpi-n" id="kpi-interv-men">0</div><div class="muted">Ménage — Ouvertes</div></button>
-            <button class="tile" data-goto="chat"><h3>💬 Chat</h3><div class="kpi-n" id="kpi-chat">0</div><div class="muted">Msgs non lus</div></button>
-            <button class="tile" data-goto="personnes"><h3>👥 Nombre de personnes</h3><div class="kpi-n" id="kpi-people">0</div><div class="muted">Occupants + équipe</div></button>
-          </div>
+<div class="tiles" id="home-tiles">
+  <button id="tile-tech" class="tile" data-goto="interventions">
+    <h3>🛠️ Interventions</h3>
+    <div class="kpi-n" id="kpi-interv-tech">0</div>
+    <div class="muted">Tech — Ouvertes</div>
+  </button>
+
+  <button id="tile-men" class="tile" data-goto="interventions">
+    <h3>🧹 Interventions</h3>
+    <div class="kpi-n" id="kpi-interv-men">0</div>
+    <div class="muted">Ménage — Ouvertes</div>
+  </button>
+
+  <button class="tile" data-goto="chat">
+    <h3>💬 Chat</h3>
+    <div class="kpi-n" id="kpi-chat">0</div>
+    <div class="muted">Msgs non lus</div>
+  </button>
+
+  <button class="tile" data-goto="personnes">
+    <h3>👥 Nombre de personnes</h3>
+    <div class="kpi-n" id="kpi-people">0</div>
+    <div class="muted">Occupants + équipe</div>
+  </button>
+</div>
+
         </div>
 
         <!-- Interventions -->
@@ -337,6 +382,7 @@
     <button id="tab-users-btn-m" style="display:none" data-tab="utilisateurs">👤<br><span style="font-size:12px">Utilisateurs</span></button>
     <button data-tab="rapports">📊<br><span style="font-size:12px">Rapports</span></button>
     <button data-tab="parametres">⚙️<br><span style="font-size:12px">Paramètres</span></button>
+
   </nav>
 
 <script>
@@ -364,6 +410,18 @@ function enforceAuthUI(){
     document.getElementById("form-interv").style.display=(isAdmin||c.role==="Réception")?"block":"none";
     document.getElementById("tab-users-btn").style.display=isAdmin?"block":"none";
     document.getElementById("tab-users-btn-m").style.display=isAdmin?"block":"none";
+    // Accueil : n'afficher que la tuile pertinente selon le rôle
+if(isAdmin || c.role==="Réception"){
+  homeTileTech?.classList.remove("hidden");
+  homeTileMen?.classList.remove("hidden");
+} else if(c.role==="Technicien"){
+  homeTileTech?.classList.remove("hidden");
+  homeTileMen?.classList.add("hidden");
+} else if(c.role==="Ménage"){
+  homeTileTech?.classList.add("hidden");
+  homeTileMen?.classList.remove("hidden");
+}
+
     history.replaceState({app:true}, "", "#app");
     renderInterventions(); renderUsers();
   }else{
@@ -405,7 +463,8 @@ document.addEventListener("touchend",e=>{let endX=e.changedTouches[0].clientX, d
 /* ===== Interventions ===== */
 const listTech=document.getElementById("list-tech"), listMen=document.getElementById("list-men");
 const searchInterv=document.getElementById("searchInterv"), filterStatus=document.getElementById("filterStatus");
-
+const homeTileTech = document.getElementById("tile-tech");
+const homeTileMen  = document.getElementById("tile-men");
 document.getElementById("form-interv").addEventListener("submit",e=>{
   e.preventDefault(); const d=new FormData(e.target), c=current(), type=d.get("type"), now=new Date().toISOString();
 const it={ id:Date.now().toString().slice(-6), type, prio:d.get("prio"), lieu:d.get("lieu"), detail:d.get("detail"),
