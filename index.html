@@ -23,6 +23,19 @@
     .is-auth #app-view{display:grid}
     .is-auth .mobile-tabs{display:flex}
 
+    /* ===== Détail intervention + notes ===== */
+    .detail-box{
+      background:#f8fafc;border:1px solid var(--line);border-left:6px solid #93c5fd;
+      border-radius:12px;padding:10px 12px;margin:8px 0;font-size:1rem
+    }
+    .detail-box.menage{ border-left-color:#86efac; }
+    .detail-box .label{display:block;font-size:.78rem;color:var(--text-dim);margin-bottom:4px;letter-spacing:.2px}
+    .notes{margin-top:8px;display:grid;gap:6px}
+    .note{background:#fff;border:1px dashed #cbd5e1;border-radius:10px;padding:8px 10px}
+    .note small{display:block;color:var(--text-dim)}
+    .noteform{margin-top:8px;display:grid;gap:6px}
+    .noteform textarea{min-height:70px}
+
     /* Components */
     .center{min-height:100dvh;display:grid;place-items:center;padding:20px}
     .card{width:min(100%,1000px);background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
@@ -79,16 +92,13 @@
     .mobile-tabs::-webkit-scrollbar{display:none}
     .mobile-tabs button{
       flex:0 0 auto; min-width:104px; scroll-snap-align:center;
-      text-align:center;background:#fff;color:var(--text);border:1px solid var(--line);
+      text-align:center;background:#fff;color:#000;border:1px solid var(--line);
       border-radius:12px;padding:10px 8px;min-height:44px;cursor:pointer;font-weight:600
     }
-    .mobile-tabs button.active{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,.18) inset}
+    .mobile-tabs button.active{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.18) inset}
 
     /* Lists/cards */
     .list{display:grid;gap:10px;margin-top:10px}
-    .it{border:1px solid var(--line);border-radius:14px;padding:12px;background:#fff}
-    .it .ttl{font-weight:700}
-    .it .meta{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0}
 
     /* Chat */
     .chat-wrap{display:grid;grid-template-rows:1fr auto;min-height:320px;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#fff}
@@ -103,6 +113,71 @@
       .content{padding:24px;padding-bottom:24px}
       .mobile-tabs{display:none}
     }
+    /* ===== Statuts (3 couleurs) ===== */
+    .status-pill{font-weight:700}
+    .st-assign   { background:#fffbeb; color:#92400e; border:1px solid #f59e0b; }
+    .st-progress { background:#eff6ff; color:#1e3a8a; border:1px solid #3b82f6; }
+    .st-done     { background:#ecfdf5; color:#065f46; border:1px solid #16a34a; }
+
+    /* ===== Cartes intervention (UX améliorée) ===== */
+.it{
+  position:relative;
+  border:1px solid var(--line); border-radius:16px; background:#fff;
+  padding:14px; box-shadow:0 6px 14px rgba(15,23,42,.04);
+}
+.it + .it{ margin-top:10px; }
+
+/* Ruban latéral : bleu = tech, vert = ménage */
+.it::before{
+  content:""; position:absolute; left:-1px; top:-1px; bottom:-1px; width:6px;
+  border-radius:16px 0 0 16px; background:#cbd5e1;
+}
+.it.queue-tech::before{ background:#3b82f6; }
+.it.queue-men::before{  background:#16a34a; }
+
+/* En-tête */
+.it .hdr{
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:6px;
+}
+.it .id{ font-weight:800; letter-spacing:.2px; font-size:1.05rem; }
+.it .type{ font-weight:700; opacity:.85; }
+.badge{
+  display:inline-flex; align-items:center; gap:6px;
+  border:1px solid var(--line); background:#f8fafc; color:#334155;
+  border-radius:999px; padding:6px 10px; font-size:.8rem; font-weight:700;
+}
+/* === Forcer les couleurs de statut sur la pastille === */
+.badge.status-pill.st-assign   { background:#fffbeb; color:#92400e; border-color:#f59e0b; }
+.badge.status-pill.st-progress { background:#eff6ff; color:#1e3a8a; border-color:#3b82f6; }
+.badge.status-pill.st-done     { background:#ecfdf5; color:#065f46; border-color:#16a34a; }
+
+/* Grille des méta-infos */
+.meta-grid{
+  display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin:6px 0 8px 0;
+}
+@media (min-width:780px){ .meta-grid{ grid-template-columns:repeat(3,minmax(0,1fr)); } }
+.meta-pill{
+  background:#f1f5f9; border:1px solid #e2e8f0; padding:8px 10px; border-radius:12px; font-size:.9rem;
+}
+.meta-pill b{ font-weight:700; }
+
+/* Détail plus lisible */
+.detail-box{ padding:12px 14px; }
+.detail-box .txt{ font-weight:700; line-height:1.45; }
+
+/* Notes */
+.notes{ display:grid; gap:8px; margin-top:6px; }
+.note{ background:#fff; border:1px dashed #cbd5e1; border-radius:12px; padding:10px 12px; }
+.note small{ display:block; color:#64748b; margin-top:4px; }
+
+/* Formulaire de note */
+.noteform{ margin-top:8px; display:grid; gap:8px; }
+.noteform textarea{ min-height:80px; }
+.noteform .actions{ display:flex; justify-content:flex-end; }
+
+/* Barre d’actions */
+.it .actions-row{ margin-top:8px; display:flex; flex-wrap:wrap; gap:8px; justify-content:flex-end; }
+
   </style>
 </head>
 <body>
@@ -214,7 +289,7 @@
           <div class="row" style="gap:10px;margin:6px 0"><select id="chatChannel"><option value="general">#général</option><option value="reception">#réception</option><option value="techniciens">#techniciens</option><option value="menage">#ménage</option><option value="interventions">#interventions</option></select><span class="chip">Rôle courant: <strong id="roleBadge2">—</strong></span></div>
           <div class="chat-wrap">
             <div id="chatList" class="chat-list" aria-live="polite"></div>
-            <form id="chatForm" class="row" style="padding:10px;background:var(--bg-2);border-top:1px solid var(--line)"><input id="chatMsg" placeholder="Écrire un message..." /><button class="btn" type="submit">Envoyer</button></form>
+            <form id="chatForm" class="row" style="padding:10px;background:#fff;border-top:1px solid #e5e7eb"><input id="chatMsg" placeholder="Écrire un message..." /><button class="btn" type="submit">Envoyer</button></form>
           </div>
         </div>
 
@@ -333,34 +408,165 @@ const searchInterv=document.getElementById("searchInterv"), filterStatus=documen
 
 document.getElementById("form-interv").addEventListener("submit",e=>{
   e.preventDefault(); const d=new FormData(e.target), c=current(), type=d.get("type"), now=new Date().toISOString();
-  const it={ id:Date.now().toString().slice(-6), type, prio:d.get("prio"), lieu:d.get("lieu"), detail:d.get("detail"),
-    assigne:type==="Ménage"?"Ménage":"Techniciens", status:"Assignée", created:now,
-    createdBy:`${c.userId} (${c.role})`, handledBy:null,
-    history:[ {action:"Créée",by:`${c.userId} (${c.role})`,at:now}, {action:`Assignée à ${type==="Ménage"?"Ménage":"Techniciens"}`,by:`${c.userId} (${c.role})`,at:now} ] };
+const it={ id:Date.now().toString().slice(-6), type, prio:d.get("prio"), lieu:d.get("lieu"), detail:d.get("detail"),
+  assigne:type==="Ménage"?"Ménage":"Techniciens", status:"Assignée", created:now,
+  createdBy:`${c.userId} (${c.role})`, handledBy:null, notes:[],
+  history:[ {action:"Créée",by:`${c.userId} (${c.role})`,at:now},
+            {action:`Assignée à ${type==="Ménage"?"Ménage":"Techniciens"}`,by:`${c.userId} (${c.role})`,at:now} ] };
   state.interventions.unshift(it); saveState(); e.target.reset(); renderInterventions();
 });
 [searchInterv, filterStatus].forEach(el=>el.addEventListener("input", renderInterventions));
 
+document.addEventListener("input", e=>{
+  if(e.target.matches('.noteform textarea')){
+    e.target.style.height = "auto";
+    e.target.style.height = e.target.scrollHeight + "px";
+  }
+});
+
 function renderInterventions(){
   if(!isLogged()) return;
-  const c=current(), q=(searchInterv.value||"").toLowerCase(), s=filterStatus.value;
-  const filtered=state.interventions.filter(i=>(s==="all"||(s==="Assignée"?i.status.startsWith("Assignée"):i.status===s))&&(i.lieu.toLowerCase().includes(q)||i.detail.toLowerCase().includes(q)||i.id.includes(q)));
-  if(c.role==="Technicien"||c.role==="Ménage"){ renderList(listTech, filtered.filter(i=>i.assigne==="Techniciens"), c); renderList(listMen, filtered.filter(i=>i.assigne==="Ménage"), c); (c.role==="Technicien"?listMen:listTech).parentElement.style.opacity=.45; }
-  else{ listMen.parentElement.style.opacity=1; listTech.parentElement.style.opacity=1; renderList(listTech, filtered.filter(i=>i.assigne==="Techniciens"), c); renderList(listMen, filtered.filter(i=>i.assigne==="Ménage"), c); }
+
+  const c=current(),
+        q=(searchInterv.value||"").toLowerCase(),
+        s=filterStatus.value;
+
+  // Elements des cartes (conteneurs des listes)
+  const techCard = listTech.parentElement;
+  const menCard  = listMen.parentElement;
+
+  // Filtre texte/statut commun
+  const filtered = state.interventions.filter(i =>
+    (s==="all" || (s==="Assignée" ? i.status.startsWith("Assignée") : i.status===s)) &&
+    (i.lieu.toLowerCase().includes(q) || i.detail.toLowerCase().includes(q) || i.id.includes(q))
+  );
+
+  // Réception/Admin : voient tout
+  if(c.role==="Réception" || c.role==="Admin"){
+    techCard.hidden = false;
+    menCard.hidden  = false;
+    techCard.style.opacity = 1;
+    menCard.style.opacity  = 1;
+
+    renderList(listTech, filtered.filter(i=>i.assigne==="Techniciens"), c);
+    renderList(listMen,  filtered.filter(i=>i.assigne==="Ménage"),      c);
+    return;
+  }
+
+  // Rôles opérationnels : ne voient QUE leur file
+  const isTech = c.role==="Technicien";
+  const myQueue = isTech ? "Techniciens" : "Ménage";
+
+  // Afficher uniquement la bonne carte, cacher l'autre
+  if(isTech){
+    techCard.hidden = false;  menCard.hidden = true;
+  }else{
+    techCard.hidden = true;   menCard.hidden = false;
+  }
+  // Par sécurité, enlever toute opacité résiduelle
+  techCard.style.opacity = 1;
+  menCard.style.opacity  = 1;
+
+  // Ne rendre que la liste de la file autorisée
+  renderList(isTech ? listTech : listMen, filtered.filter(i=>i.assigne===myQueue), c);
+
+  // Vider la liste de la file cachée pour éviter une navigation clavier/lecteur d’écran
+  renderList(isTech ? listMen : listTech, [], c);
 }
+// 3 couleurs pour 4 statuts → "Ouverte" et "Assignée" partagent la couleur ambre
+const STATUS3 = {
+  assign:   { pill:"st-assign",   card:"card-assign" },    // Ouverte / Assignée
+  progress: { pill:"st-progress", card:"card-progress" },  // En cours
+  done:     { pill:"st-done",     card:"card-done" }       // Terminée
+};
+function statusKey(s){
+  if(s==="Terminée") return "done";
+  if(s==="En cours") return "progress";
+  return "assign"; // "Ouverte" ou "Assignée"
+}
+
 function renderList(container, items, ctx){ container.innerHTML=""; items.forEach(i=>container.appendChild(itemCard(i,ctx))); }
 function itemCard(i, ctx){
-  const isReception=ctx.role==="Réception"||ctx.role==="Admin";
-  const canWork=(ctx.role==="Technicien"&&i.assigne==="Techniciens")||(ctx.role==="Ménage"&&i.assigne==="Ménage");
-  const baseInfo=`<div class="ttl">#${i.id} • ${i.type} ${isReception?`<span class="chip">${i.prio}</span>`:''}</div>
-  <div class="meta"><span class="chip">Lieu: ${i.lieu}</span>${i.createdBy?`<span class="chip">Créée par: ${i.createdBy}</span>`:''}<span class="chip">Statut: ${i.status}</span>${i.handledBy?`<span class="chip">Par: ${i.handledBy}</span>`:''}</div>
-  <div class="muted" style="margin:6px 0">${escapeHtml(i.detail)}</div>`;
-  const actions=[]; if(isReception) actions.push(btn("Re-assigner","assign",i.id)); if(canWork&&(i.status==="Assignée"||i.status==="Ouverte")) actions.push(btn("En cours","start",i.id)); if(canWork&&i.status==="En cours") actions.push(btn("Terminer","done",i.id)); if(isReception) actions.push(btn("Supprimer","del",i.id,"danger"));
-  const timeline=(i.history||[]).map(h=>`<div class="muted" style="font-size:.8rem">• ${escapeHtml(h.action)} — ${escapeHtml(h.by)} — ${new Date(h.at).toLocaleString()}</div>`).join("");
-  const wrap=document.createElement("div"); wrap.className="it";
-  wrap.innerHTML=baseInfo+`<div class="row">${actions.join(" ")}</div>`+`<details style="margin-top:6px"><summary style="cursor:pointer">Historique</summary>${timeline||'<div class="muted" style="font-size:.85rem">Aucun événement.</div>'}</details>`;
+  const isReception = ctx.role==="Réception"||ctx.role==="Admin";
+  const canWork = (ctx.role==="Technicien"&&i.assigne==="Techniciens")||(ctx.role==="Ménage"&&i.assigne==="Ménage");
+
+  // Autoriser l'ajout de note après clôture par la bonne personne
+  const canAddNote = canWork && i.status==="Terminée" && i.handledBy && i.handledBy.startsWith(ctx.userId);
+
+  const st = STATUS3[statusKey(i.status)];
+  const queueClass = i.assigne==="Ménage" ? "queue-men" : "queue-tech";
+
+  const wrap = document.createElement("div");
+  wrap.className = `it ${queueClass} ${st.card}`;
+
+  // Header compact : #id • type • priorité (si réception) • Statut coloré
+  const hdr = `
+    <div class="hdr">
+      <div class="id">#${i.id}</div>
+      <div class="type">• ${i.type}</div>
+      ${isReception ? `<span class="badge">Priorité: ${i.prio}</span>` : ""}
+      <span class="badge status-pill ${st.pill}">Statut: ${i.status}</span>
+    </div>
+  `;
+
+  // Grille d'infos clés
+  const meta = `
+    <div class="meta-grid">
+      <div class="meta-pill"><b>Lieu</b> : ${escapeHtml(i.lieu)}</div>
+      ${i.createdBy ? `<div class="meta-pill"><b>Créée par</b> : ${escapeHtml(i.createdBy)}</div>` : ""}
+      <div class="meta-pill"><b>Pris par</b> : ${i.handledBy ? escapeHtml(i.handledBy) : "—"}</div>
+    </div>
+  `;
+
+  // Détail initial bien visible
+  const detail = `
+    <div class="detail-box ${i.assigne==='Ménage'?'menage':''}">
+      <span class="label">Détail initial</span>
+      <div class="txt">${escapeHtml(i.detail)}</div>
+    </div>
+  `;
+
+  // Actions selon rôle/état
+  const actions=[];
+  if(isReception) actions.push(btn("Re-assigner","assign",i.id));
+  if(canWork && (i.status==="Assignée"||i.status==="Ouverte")) actions.push(btn("En cours","start",i.id));
+  if(canWork && i.status==="En cours") actions.push(btn("Terminer","done",i.id));
+  if(isReception) actions.push(btn("Supprimer","del",i.id,"danger"));
+
+  // Notes existantes + formulaire éventuel
+  const notesList = (i.notes||[]).map(n=>`
+    <div class="note">
+      <div>${escapeHtml(n.text)}</div>
+      <small>Ajoutée par ${escapeHtml(n.by)} — ${new Date(n.at).toLocaleString()}</small>
+    </div>
+  `).join("");
+
+  const noteForm = canAddNote ? `
+    <div class="noteform">
+      <label class="label" for="note-${i.id}">Ajouter un complément</label>
+      <textarea id="note-${i.id}" data-note="${i.id}" placeholder="Précisions, références, actions menées..."></textarea>
+      <div class="actions">
+        <button class="btn small" data-act="save-note" data-i="${i.id}">Enregistrer</button>
+      </div>
+    </div>
+  ` : "";
+
+  // Historique
+  const timeline = (i.history||[]).map(h=>`
+    <div class="muted" style="font-size:.85rem">• ${escapeHtml(h.action)} — ${escapeHtml(h.by)} — ${new Date(h.at).toLocaleString()}</div>
+  `).join("");
+
+  wrap.innerHTML =
+    hdr + meta + detail +
+    `<div class="notes">${notesList || '<div class="muted" style="font-size:.9rem">Aucun complément.</div>'}</div>` +
+    noteForm +
+    `<div class="actions-row">${actions.join(" ")}</div>` +
+    `<details style="margin-top:8px"><summary style="cursor:pointer">Historique</summary>${timeline||'<div class="muted" style="font-size:.85rem">Aucun événement.</div>'}</details>`;
+
   return wrap;
 }
+
+
 function btn(txt,act,id,klass="secondary"){ return `<button class="btn ${klass} small" data-act="${act}" data-i="${id}">${txt}</button>`; }
 [listTech, listMen].forEach(el=>el.addEventListener("click",e=>{
   const b=e.target.closest("[data-act]"); if(!b) return; const id=b.dataset.i; const it=state.interventions.find(x=>x.id===id); if(!it) return;
@@ -369,7 +575,21 @@ function btn(txt,act,id,klass="secondary"){ return `<button class="btn ${klass} 
   if(act==="start"){ it.status="En cours"; it.handledBy=`${c.userId} (${c.role})`; (it.history ||= []).push({action:"En cours",by:`${c.userId} (${c.role})`,at:now}); }
   if(act==="done"){ it.status="Terminée"; it.handledBy=`${c.userId} (${c.role})`; (it.history ||= []).push({action:"Terminée",by:`${c.userId} (${c.role})`,at:now}); }
   if(act==="del"){ (it.history ||= []).push({action:"Supprimée",by:`${c.userId} (${c.role})`,at:now}); state.interventions=state.interventions.filter(x=>x.id!==id); }
-  saveState(); renderInterventions();
+  if(act==="save-note"){
+    const ta = document.querySelector(`textarea[data-note="${id}"]`);
+    const txt = (ta?.value||"").trim();
+    if(!txt) return;
+
+    (it.notes ||= []).push({ text: txt, by: `${c.userId} (${c.role})`, at: now });
+    (it.history ||= []).push({ action: "Note ajoutée", by: `${c.userId} (${c.role})`, at: now });
+
+    saveState();
+    renderInterventions();
+    return;
+  }
+
+  saveState();
+  renderInterventions();
 }));
 
 /* ===== Chat ===== */
