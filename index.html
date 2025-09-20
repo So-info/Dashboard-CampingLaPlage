@@ -205,6 +205,44 @@ html, body { width:100%; overflow-x:hidden; }
 /* Montrer certains éléments seulement à Admin/Réception */
 .only-recadmin{ display:none; }
 .is-recadmin .only-recadmin{ display:block; }
+/* Pastilles Oui/Non */
+.meta-pill.yes{
+  background:#ecfdf5;            /* vert pâle */
+  border:1px solid #a7f3d0;
+  color:#065f46;
+  font-weight:700;
+}
+.meta-pill.no{
+  background:#fef2f2;            /* rouge pâle */
+  border:1px solid #fecaca;
+  color:#991b1b;
+  font-weight:700;
+}
+/* petit pictogramme */
+.meta-pill.yes::before{ content:"✔ "; font-weight:900; }
+.meta-pill.no::before{  content:"✖ "; font-weight:900; }
+/* Supprimer la bordure des fieldsets utilisés pour les switches */
+.seg-field{ border:0; margin:0; padding:0 }
+
+/* Toggle Oui/Non accessible */
+.seg{
+  display:inline-flex; align-items:center; gap:6px;
+  background:#f1f5f9; border:1px solid #e2e8f0; border-radius:999px;
+  padding:4px;
+}
+.seg input[type=radio]{
+  position:absolute; opacity:0; width:0; height:0;
+  -webkit-appearance:none; appearance:none; /* iOS/Safari */
+}
+.seg label{
+  cursor:pointer; user-select:none;
+  padding:8px 14px; border-radius:999px; font-weight:700; color:#64748b;
+}
+.seg input:focus + label{ box-shadow:0 0 0 3px rgba(37,99,235,.25) }
+
+/* Couleurs quand sélectionné (vert = Oui, rouge = Non) */
+.seg--yn input[value="oui"]:checked + label{ background:#16a34a; color:#fff }
+.seg--yn input[value="non"]:checked + label{ background:#dc2626; color:#fff }
 
   </style>
 </head>
@@ -328,25 +366,30 @@ html, body { width:100%; overflow-x:hidden; }
   </div>
 
   <!-- Champs visibles seulement Admin/Réception -->
-  <div class="row only-recadmin" style="align-items:flex-start;gap:12px">
+<div class="field">
+  <label>Clients présents ?</label>
+  <fieldset class="seg-field">
+    <div class="seg seg--yn" role="radiogroup" aria-label="Clients présents">
+      <input type="radio" id="clients-oui" name="clients" value="oui">
+      <label for="clients-oui">Oui</label>
+      <input type="radio" id="clients-non" name="clients" value="non" checked>
+      <label for="clients-non">Non</label>
+    </div>
+  </fieldset>
+</div>
 
-    <fieldset class="field" style="flex:1 1 220px">
-      <label>Clients présents ?</label>
-      <div class="row" style="gap:10px">
-        <label class="chip"><input type="radio" name="clients_present" value="true"> Oui</label>
-        <label class="chip"><input type="radio" name="clients_present" value="false" checked> Non</label>
-      </div>
-    </fieldset>
+<div class="field">
+  <label>Autorisation d'entrée ?</label>
+  <fieldset class="seg-field">
+    <div class="seg seg--yn" role="radiogroup" aria-label="Autorisation d'entrée">
+      <input type="radio" id="entry-oui" name="entry" value="oui">
+      <label for="entry-oui">Oui</label>
+      <input type="radio" id="entry-non" name="entry" value="non" checked>
+      <label for="entry-non">Non</label>
+    </div>
+  </fieldset>
+</div>
 
-    <fieldset class="field" style="flex:1 1 220px">
-      <label>Autorisation d'entrée ?</label>
-      <div class="row" style="gap:10px">
-        <label class="chip"><input type="radio" name="autorisation_entree" value="true"> Oui</label>
-        <label class="chip"><input type="radio" name="autorisation_entree" value="false" checked> Non</label>
-      </div>
-    </fieldset>
-
-  </div>
 
   <div class="field">
     <label>Détail</label>
@@ -645,11 +688,14 @@ const meta = `
     ${i.createdBy ? `<div class="meta-pill"><b>Créée par</b> : ${escapeHtml(i.createdBy)}</div>` : ""}
     <div class="meta-pill"><b>Pris par</b> : ${i.handledBy ? escapeHtml(i.handledBy) : "—"}</div>
 
-    <div class="meta-pill"><b>Clients présents</b> : ${i.clientsPresent ? "Oui" : "Non"}</div>
-    <div class="meta-pill"><b>Autorisation d'entrée</b> : ${i.entryAllowed ? "Oui" : "Non"}</div>
+    <div class="meta-pill ${i.clientsPresent ? 'yes' : 'no'}">
+      <b>Clients présents</b> : ${i.clientsPresent ? 'Oui' : 'Non'}
+    </div>
+    <div class="meta-pill ${i.entryAllowed ? 'yes' : 'no'}">
+      <b>Autorisation d’entrée</b> : ${i.entryAllowed ? 'Oui' : 'Non'}
+    </div>
   </div>
 `;
-
 
   // Détail initial bien visible
   const detail = `
