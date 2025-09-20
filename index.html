@@ -562,28 +562,22 @@ const homeTileTech = document.getElementById("tile-tech");
 const homeTileMen  = document.getElementById("tile-men");
 document.getElementById("form-interv").addEventListener("submit",e=>{
   e.preventDefault(); const d=new FormData(e.target), c=current(), type=d.get("type"), now=new Date().toISOString();
-const it={
-  id:Date.now().toString().slice(-6),
-  type,
-  prio:d.get("prio"),
-  lieu:d.get("lieu"),
-  detail:d.get("detail"),
+const clientsPresent = d.get("clients") === "oui";
+const entryAllowed   = d.get("entry")   === "oui";
 
-  // 👉 nouveaux champs (booléens)
-  clientsPresent: d.get("clients_present")==="true",
-  entryAllowed:   d.get("autorisation_entree")==="true",
-
+const it = {
+  id: Date.now().toString().slice(-6),
+  type, prio: d.get("prio"), lieu: d.get("lieu"), detail: d.get("detail"),
   assigne: type==="Ménage" ? "Ménage" : "Techniciens",
-  status:"Assignée",
-  created:now,
-  createdBy:`${c.userId} (${c.role})`,
-  handledBy:null,
-  notes:[],
-  history:[
+  status: "Assignée", created: now,
+  createdBy: `${c.userId} (${c.role})`, handledBy: null, notes: [],
+  clientsPresent, entryAllowed,
+  history: [
     {action:"Créée",by:`${c.userId} (${c.role})`,at:now},
     {action:`Assignée à ${type==="Ménage"?"Ménage":"Techniciens"}`,by:`${c.userId} (${c.role})`,at:now}
   ]
 };
+
 
   state.interventions.unshift(it); saveState(); e.target.reset(); renderInterventions();
 });
