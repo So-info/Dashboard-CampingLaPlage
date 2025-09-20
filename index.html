@@ -202,6 +202,9 @@
 /* Eviter tout débordement horizontal surprise */
 html, body { width:100%; overflow-x:hidden; }
 .hidden{ display:none !important; }
+/* Montrer certains éléments seulement à Admin/Réception */
+.only-recadmin{ display:none; }
+.is-recadmin .only-recadmin{ display:block; }
 
   </style>
 </head>
@@ -280,9 +283,9 @@ html, body { width:100%; overflow-x:hidden; }
   </button>
 
   <button class="tile" data-goto="personnes">
-    <h3>👥 Nombre de personnes</h3>
+    <h3>👥 Nombre de vacancier</h3>
     <div class="kpi-n" id="kpi-people">0</div>
-    <div class="muted">Occupants + équipe</div>
+    <div class="muted">Occupants</div>
   </button>
 </div>
 
@@ -291,27 +294,74 @@ html, body { width:100%; overflow-x:hidden; }
         <!-- Interventions -->
         <div class="tab" id="tab-interventions" hidden>
           <div class="row" style="justify-content:space-between"><h2>Interventions</h2><div class="row"><button id="exportCsv" class="btn secondary">⬇️ Export CSV</button></div></div>
-          <p class="muted">Vue adaptée selon votre rôle. Réception/Admin voient les deux files « Techniciens » et « Ménage ».</p>
+          <p class="muted"></p>
 
           <!-- Form -->
-          <form id="form-interv" class="card" style="display:none">
-            <div class="row" style="justify-content:space-between;align-items:center"><h3 style="margin-bottom:6px">➕ Nouvelle intervention</h3><span class="chip">Assignation auto selon type</span></div>
-            <div class="row" style="align-items:flex-start;gap:12px">
-              <div class="field" style="flex:1 1 160px"><label>Type</label>
-                <select name="type" required><option value="Technique">Technique</option><option value="Ménage">Ménage</option></select>
-              </div>
-              <div class="field" style="flex:1 1 160px"><label>Priorité</label>
-                <select name="prio" required><option>Normale</option><option>Haute</option><option>Urgente</option></select>
-              </div>
-              <div class="field" style="flex:2 1 240px"><label>Lieu</label><input name="lieu" placeholder="Bungalow A12, Sanitaires B..." required></div>
-            </div>
-            <div class="field"><label>Détail</label><textarea name="detail" placeholder="Décrivez le problème..." required></textarea></div>
-            <div class="row" style="justify-content:flex-end"><button class="btn" type="submit">Créer</button></div>
-          </form>
+<form id="form-interv" class="card" style="display:none">
+  <div class="row" style="justify-content:space-between;align-items:center">
+    <h3 style="margin-bottom:6px">➕ Nouvelle intervention</h3>
+    <span class="chip">Assignation auto selon type</span>
+  </div>
+
+  <div class="row" style="align-items:flex-start;gap:12px">
+    <div class="field" style="flex:1 1 160px">
+      <label>Type</label>
+      <select name="type" required>
+        <option value="Technique">Technique</option>
+        <option value="Ménage">Ménage</option>
+      </select>
+    </div>
+
+    <div class="field" style="flex:1 1 160px">
+      <label>Priorité</label>
+      <select name="prio" required>
+        <option>Normale</option>
+        <option>Haute</option>
+        <option>Urgente</option>
+      </select>
+    </div>
+
+    <div class="field" style="flex:2 1 240px">
+      <label>Mobil Home</label>
+      <input name="lieu" placeholder="Ecrire..." required>
+    </div>
+  </div>
+
+  <!-- Champs visibles seulement Admin/Réception -->
+  <div class="row only-recadmin" style="align-items:flex-start;gap:12px">
+
+    <fieldset class="field" style="flex:1 1 220px">
+      <label>Clients présents ?</label>
+      <div class="row" style="gap:10px">
+        <label class="chip"><input type="radio" name="clients_present" value="true"> Oui</label>
+        <label class="chip"><input type="radio" name="clients_present" value="false" checked> Non</label>
+      </div>
+    </fieldset>
+
+    <fieldset class="field" style="flex:1 1 220px">
+      <label>Autorisation d'entrée ?</label>
+      <div class="row" style="gap:10px">
+        <label class="chip"><input type="radio" name="autorisation_entree" value="true"> Oui</label>
+        <label class="chip"><input type="radio" name="autorisation_entree" value="false" checked> Non</label>
+      </div>
+    </fieldset>
+
+  </div>
+
+  <div class="field">
+    <label>Détail</label>
+    <textarea name="detail" placeholder="Décrivez le problème..." required></textarea>
+  </div>
+
+  <div class="row" style="justify-content:flex-end">
+    <button class="btn" type="submit">Créer</button>
+  </div>
+</form>
+
 
           <!-- Filtres -->
           <div class="row" style="margin-top:10px">
-            <input id="searchInterv" placeholder="Recherche (lieu, détail, id)" style="flex:2 1 220px">
+            <input id="searchInterv" placeholder="Recherche (MH, détail, id)" style="flex:2 1 220px">
             <select id="filterStatus" style="flex:1 1 160px"><option value="all">Tous statuts</option><option>Ouverte</option><option>Assignée</option><option>En cours</option><option>Terminée</option></select>
           </div>
 
@@ -404,6 +454,8 @@ function setGreeting(){ const h=new Date().getHours(); document.getElementById("
 function enforceAuthUI(){
   if(isLogged()){
     const c=current(); document.body.classList.add("is-auth");
+        const canManage = (c.role==="Admin" || c.role==="Réception");
+    document.body.classList.toggle("is-recadmin", canManage);
     document.getElementById("sessionUser").textContent="Connecté : "+c.userId;
     document.getElementById("roleBadge").textContent=c.role; document.getElementById("roleBadge2").textContent=c.role;
     const isAdmin=c.role==="Admin";
@@ -467,11 +519,29 @@ const homeTileTech = document.getElementById("tile-tech");
 const homeTileMen  = document.getElementById("tile-men");
 document.getElementById("form-interv").addEventListener("submit",e=>{
   e.preventDefault(); const d=new FormData(e.target), c=current(), type=d.get("type"), now=new Date().toISOString();
-const it={ id:Date.now().toString().slice(-6), type, prio:d.get("prio"), lieu:d.get("lieu"), detail:d.get("detail"),
-  assigne:type==="Ménage"?"Ménage":"Techniciens", status:"Assignée", created:now,
-  createdBy:`${c.userId} (${c.role})`, handledBy:null, notes:[],
-  history:[ {action:"Créée",by:`${c.userId} (${c.role})`,at:now},
-            {action:`Assignée à ${type==="Ménage"?"Ménage":"Techniciens"}`,by:`${c.userId} (${c.role})`,at:now} ] };
+const it={
+  id:Date.now().toString().slice(-6),
+  type,
+  prio:d.get("prio"),
+  lieu:d.get("lieu"),
+  detail:d.get("detail"),
+
+  // 👉 nouveaux champs (booléens)
+  clientsPresent: d.get("clients_present")==="true",
+  entryAllowed:   d.get("autorisation_entree")==="true",
+
+  assigne: type==="Ménage" ? "Ménage" : "Techniciens",
+  status:"Assignée",
+  created:now,
+  createdBy:`${c.userId} (${c.role})`,
+  handledBy:null,
+  notes:[],
+  history:[
+    {action:"Créée",by:`${c.userId} (${c.role})`,at:now},
+    {action:`Assignée à ${type==="Ménage"?"Ménage":"Techniciens"}`,by:`${c.userId} (${c.role})`,at:now}
+  ]
+};
+
   state.interventions.unshift(it); saveState(); e.target.reset(); renderInterventions();
 });
 [searchInterv, filterStatus].forEach(el=>el.addEventListener("input", renderInterventions));
@@ -569,13 +639,17 @@ function itemCard(i, ctx){
   `;
 
   // Grille d'infos clés
-  const meta = `
-    <div class="meta-grid">
-      <div class="meta-pill"><b>Lieu</b> : ${escapeHtml(i.lieu)}</div>
-      ${i.createdBy ? `<div class="meta-pill"><b>Créée par</b> : ${escapeHtml(i.createdBy)}</div>` : ""}
-      <div class="meta-pill"><b>Pris par</b> : ${i.handledBy ? escapeHtml(i.handledBy) : "—"}</div>
-    </div>
-  `;
+const meta = `
+  <div class="meta-grid">
+    <div class="meta-pill"><b>Lieu</b> : ${escapeHtml(i.lieu)}</div>
+    ${i.createdBy ? `<div class="meta-pill"><b>Créée par</b> : ${escapeHtml(i.createdBy)}</div>` : ""}
+    <div class="meta-pill"><b>Pris par</b> : ${i.handledBy ? escapeHtml(i.handledBy) : "—"}</div>
+
+    <div class="meta-pill"><b>Clients présents</b> : ${i.clientsPresent ? "Oui" : "Non"}</div>
+    <div class="meta-pill"><b>Autorisation d'entrée</b> : ${i.entryAllowed ? "Oui" : "Non"}</div>
+  </div>
+`;
+
 
   // Détail initial bien visible
   const detail = `
