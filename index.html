@@ -18,12 +18,11 @@
       padding-top:var(--safe-top);padding-bottom:var(--safe-bottom)}
 /* Logo sur l'écran de connexion */
 .login-logo{
-  max-height: 60px;           /* taille mobile */
+  max-height: 60px;
   height: auto;
   width: auto;
   object-fit: contain;
 }
-
 @media (min-width: 520px){
   .login-logo{ max-height: 72px; }
 }
@@ -93,31 +92,13 @@
 
     .sidebar{display:none;background:var(--bg-2)}
 
-    /* ===== Mobile bottom nav – scrollable + safe area ===== */
-/* Garde d’authentification */
-#app-view, .mobile-tabs { display: none }
-.is-auth #login-view { display: none }
-.is-auth #app-view { display: grid }
-.is-auth .mobile-tabs { display: flex }
-
-/* ===== Barre d’onglets mobile ===== */
-.mobile-tabs{
-  position:fixed;left:0;right:0;bottom:0;z-index:30;
-  background:rgba(255,255,255,.92);
-  backdrop-filter:blur(10px);
-  border-top:1px solid var(--line);
-  padding:8px max(8px,env(safe-area-inset-right))
-          calc(8px + env(safe-area-inset-bottom))
-          max(8px,env(safe-area-inset-left));
-  gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;
-  -webkit-overflow-scrolling:touch;
-
-  /* IMPORTANT : cachée par défaut (écran de connexion) */
-  display:none !important;
-}
-/* Visible uniquement quand l’utilisateur est connecté */
-.is-auth .mobile-tabs { display:flex !important; }
-
+    /* ===== Mobile bottom nav ===== */
+    .mobile-tabs{
+      position:fixed;left:0;right:0;bottom:0;z-index:30;background:rgba(255,255,255,.92);
+      backdrop-filter:blur(10px);border-top:1px solid var(--line);
+      padding:8px max(8px,env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left));
+      display:flex;gap:8px;overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scroll-snap-type:x mandatory
+    }
     .mobile-tabs::-webkit-scrollbar{display:none}
     .mobile-tabs button{
       flex:0 0 auto; min-width:104px; scroll-snap-align:center;
@@ -142,158 +123,71 @@
       .content{padding:24px;padding-bottom:24px}
       .mobile-tabs{display:none}
     }
+
     /* ===== Statuts (3 couleurs) ===== */
     .status-pill{font-weight:700}
     .st-assign   { background:#fffbeb; color:#92400e; border:1px solid #f59e0b; }
     .st-progress { background:#eff6ff; color:#1e3a8a; border:1px solid #3b82f6; }
     .st-done     { background:#ecfdf5; color:#065f46; border:1px solid #16a34a; }
 
-    /* ===== Cartes intervention (UX améliorée) ===== */
-.it{
-  position:relative;
-  border:1px solid var(--line); border-radius:16px; background:#fff;
-  padding:14px; box-shadow:0 6px 14px rgba(15,23,42,.04);
-}
-.it + .it{ margin-top:10px; }
+    /* ===== Cartes intervention ===== */
+    .it{ position:relative; border:1px solid var(--line); border-radius:16px; background:#fff; padding:14px; box-shadow:0 6px 14px rgba(15,23,42,.04); }
+    .it + .it{ margin-top:10px; }
+    .it::before{ content:""; position:absolute; left:-1px; top:-1px; bottom:-1px; width:6px; border-radius:16px 0 0 16px; background:#cbd5e1;}
+    .it.queue-tech::before{ background:#3b82f6; }
+    .it.queue-men::before{  background:#16a34a; }
+    .it .hdr{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:6px; }
+    .it .id{ font-weight:800; letter-spacing:.2px; font-size:1.05rem; }
+    .it .type{ font-weight:700; opacity:.85; }
+    .badge{ display:inline-flex; align-items:center; gap:6px; border:1px solid var(--line); background:#f8fafc; color:#334155; border-radius:999px; padding:6px 10px; font-size:.8rem; font-weight:700; }
+    .badge.status-pill.st-assign   { background:#fffbeb; color:#92400e; border-color:#f59e0b; }
+    .badge.status-pill.st-progress { background:#eff6ff; color:#1e3a8a; border-color:#3b82f6; }
+    .badge.status-pill.st-done     { background:#ecfdf5; color:#065f46; border-color:#16a34a; }
+    .meta-grid{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin:6px 0 8px 0; }
+    @media (min-width:780px){ .meta-grid{ grid-template-columns:repeat(3,minmax(0,1fr)); } }
+    .meta-pill{ background:#f1f5f9; border:1px solid #e2e8f0; padding:8px 10px; border-radius:12px; font-size:.9rem; }
+    .meta-pill b{ font-weight:700; }
+    .detail-box{ padding:12px 14px; }
+    .detail-box .txt{ font-weight:700; line-height:1.45; }
+    .notes{ display:grid; gap:8px; margin-top:6px; }
+    .note{ background:#fff; border:1px dashed #cbd5e1; border-radius:12px; padding:10px 12px; }
+    .note small{ display:block; color:#64748b; margin-top:4px; }
+    .noteform{ margin-top:8px; display:grid; gap:8px; }
+    .noteform textarea{ min-height:80px; }
+    .noteform .actions{ display:flex; justify-content:flex-end; }
+    .it .actions-row{ margin-top:8px; display:flex; flex-wrap:wrap; gap:8px; justify-content:flex-end; }
 
-/* Ruban latéral : bleu = tech, vert = ménage */
-.it::before{
-  content:""; position:absolute; left:-1px; top:-1px; bottom:-1px; width:6px;
-  border-radius:16px 0 0 16px; background:#cbd5e1;
-}
-.it.queue-tech::before{ background:#3b82f6; }
-.it.queue-men::before{  background:#16a34a; }
+    /* Topbar ultra-responsive */
+    .topbar { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; }
+    .topbar .row { min-width:0; flex-wrap:wrap; justify-content:flex-end; }
+    .logout { white-space:nowrap; }
+    @media (max-width:520px){
+      .topbar{ grid-template-columns: 1fr; grid-auto-rows: auto; }
+      #hello{ order:0; }
+      .topbar .row{ order:1; justify-content:space-between; gap:6px; }
+      .chip{ padding:4px 8px; font-size:.72rem; }
+      .logout{ font-size:.9rem; padding:10px 12px; }
+    }
 
-/* En-tête */
-.it .hdr{
-  display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:6px;
-}
-.it .id{ font-weight:800; letter-spacing:.2px; font-size:1.05rem; }
-.it .type{ font-weight:700; opacity:.85; }
-.badge{
-  display:inline-flex; align-items:center; gap:6px;
-  border:1px solid var(--line); background:#f8fafc; color:#334155;
-  border-radius:999px; padding:6px 10px; font-size:.8rem; font-weight:700;
-}
-/* === Forcer les couleurs de statut sur la pastille === */
-.badge.status-pill.st-assign   { background:#fffbeb; color:#92400e; border-color:#f59e0b; }
-.badge.status-pill.st-progress { background:#eff6ff; color:#1e3a8a; border-color:#3b82f6; }
-.badge.status-pill.st-done     { background:#ecfdf5; color:#065f46; border-color:#16a34a; }
+    html, body { width:100%; overflow-x:hidden; }
+    .hidden{ display:none !important; }
+    .only-recadmin{ display:none; }
+    .is-recadmin .only-recadmin{ display:block; }
 
-/* Grille des méta-infos */
-.meta-grid{
-  display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin:6px 0 8px 0;
-}
-@media (min-width:780px){ .meta-grid{ grid-template-columns:repeat(3,minmax(0,1fr)); } }
-.meta-pill{
-  background:#f1f5f9; border:1px solid #e2e8f0; padding:8px 10px; border-radius:12px; font-size:.9rem;
-}
-.meta-pill b{ font-weight:700; }
+    /* Pastilles Oui/Non */
+    .meta-pill.yes{ background:#ecfdf5; border:1px solid #a7f3d0; color:#065f46; font-weight:700; }
+    .meta-pill.no{  background:#fef2f2; border:1px solid #fecaca; color:#991b1b; font-weight:700; }
+    .meta-pill.yes::before{ content:"✔ "; font-weight:900; }
+    .meta-pill.no::before{  content:"✖ "; font-weight:900; }
 
-/* Détail plus lisible */
-.detail-box{ padding:12px 14px; }
-.detail-box .txt{ font-weight:700; line-height:1.45; }
-
-/* Notes */
-.notes{ display:grid; gap:8px; margin-top:6px; }
-.note{ background:#fff; border:1px dashed #cbd5e1; border-radius:12px; padding:10px 12px; }
-.note small{ display:block; color:#64748b; margin-top:4px; }
-
-/* Formulaire de note */
-.noteform{ margin-top:8px; display:grid; gap:8px; }
-.noteform textarea{ min-height:80px; }
-.noteform .actions{ display:flex; justify-content:flex-end; }
-
-/* Barre d’actions */
-.it .actions-row{ margin-top:8px; display:flex; flex-wrap:wrap; gap:8px; justify-content:flex-end; }
-/* ==== Topbar ultra-responsive ==== */
-.topbar {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 8px;
-  align-items: center;
-}
-
-.topbar .row { min-width:0; flex-wrap:wrap; justify-content:flex-end; }
-.logout { white-space:nowrap; }
-
-@media (max-width:520px){
-  .topbar{
-    grid-template-columns: 1fr;
-    grid-auto-rows: auto;
-  }
-  #hello{ order:0; }
-  .topbar .row{ order:1; justify-content:space-between; gap:6px; }
-  .chip{ padding:4px 8px; font-size:.72rem; }
-  .logout{ font-size:.9rem; padding:10px 12px; }
-}
-
-/* Eviter tout débordement horizontal surprise */
-html, body { width:100%; overflow-x:hidden; }
-.hidden{ display:none !important; }
-/* Montrer certains éléments seulement à Admin/Réception */
-.only-recadmin{ display:none; }
-.is-recadmin .only-recadmin{ display:block; }
-/* Pastilles Oui/Non */
-.meta-pill.yes{
-  background:#ecfdf5;            /* vert pâle */
-  border:1px solid #a7f3d0;
-  color:#065f46;
-  font-weight:700;
-}
-.meta-pill.no{
-  background:#fef2f2;            /* rouge pâle */
-  border:1px solid #fecaca;
-  color:#991b1b;
-  font-weight:700;
-}
-/* petit pictogramme */
-.meta-pill.yes::before{ content:"✔ "; font-weight:900; }
-.meta-pill.no::before{  content:"✖ "; font-weight:900; }
-/* Supprimer la bordure des fieldsets utilisés pour les switches */
-/* --- Segmented toggle Oui/Non : surface de clic = 50/50, iOS-friendly --- */
-.seg-field{ border:0; margin:0; padding:0 }
-
-.seg{
-  display:flex;
-  gap:0;
-  background:#f1f5f9;
-  border:1px solid #e2e8f0;
-  border-radius:999px;
-  overflow:hidden;                 /* arrondis propres + aucune superposition */
-}
-
-/* radios accessibles mais visuellement cachés (compatible iOS/Safari) */
-.seg input[type=radio]{
-  position:absolute;
-  opacity:0.0001;
-  width:1px; height:1px; margin:-1px; padding:0; border:0;
-  clip:rect(0 0 0 0); clip-path:inset(50%); overflow:hidden;
-}
-
-/* chaque option occupe 50% : grosse zone de tap */
-.seg label{
-  flex:1 1 50%;
-  display:flex; align-items:center; justify-content:center;
-  padding:12px 14px;
-  cursor:pointer; user-select:none; text-align:center;
-  color:#64748b; font-weight:700;
-  -webkit-tap-highlight-color: transparent;
-}
-.seg label:first-of-type{ box-shadow:inset -1px 0 0 #e2e8f0; }
-
-/* états sélectionnés */
-.seg--yn input[value="oui"]:checked + label{ background:#16a34a; color:#fff }
-.seg--yn input[value="non"]:checked + label{ background:#dc2626; color:#fff }
-
-/* focus clavier visible */
-.seg input:focus + label{ box-shadow:0 0 0 3px rgba(37,99,235,.25) inset }
-
-
-/* Couleurs quand sélectionné (vert = Oui, rouge = Non) */
-.seg--yn input[value="oui"]:checked + label{ background:#16a34a; color:#fff }
-.seg--yn input[value="non"]:checked + label{ background:#dc2626; color:#fff }
-
+    .seg-field{ border:0; margin:0; padding:0 }
+    .seg{ display:flex; gap:0; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:999px; overflow:hidden; }
+    .seg input[type=radio]{ position:absolute; opacity:0.0001; width:1px; height:1px; margin:-1px; padding:0; border:0; clip:rect(0 0 0 0); clip-path:inset(50%); overflow:hidden; }
+    .seg label{ flex:1 1 50%; display:flex; align-items:center; justify-content:center; padding:12px 14px; cursor:pointer; user-select:none; text-align:center; color:#64748b; font-weight:700; -webkit-tap-highlight-color: transparent; }
+    .seg label:first-of-type{ box-shadow:inset -1px 0 0 #e2e8f0; }
+    .seg--yn input[value="oui"]:checked + label{ background:#16a34a; color:#fff }
+    .seg--yn input[value="non"]:checked + label{ background:#dc2626; color:#fff }
+    .seg input:focus + label{ box-shadow:0 0 0 3px rgba(37,99,235,.25) inset }
   </style>
 </head>
 <body>
@@ -302,21 +196,44 @@ html, body { width:100%; overflow-x:hidden; }
   <!-- ================= Connexion ================= -->
   <main id="login-view" class="center" aria-labelledby="title-login">
     <section class="card" role="dialog" aria-modal="true" aria-describedby="desc-login">
-<header class="row" style="gap:12px;margin-bottom:8px;align-items:center">
-  <img class="login-logo"
-       src="logo-la-plage.png"
-       alt="Camping La Plage — Argelès-sur-Mer"
-       decoding="async">
-  <div>
-    <h1 id="title-login">Connexion</h1>
-    <p id="desc-login" class="muted">Entrez vos identifiants pour accéder au dashboard.</p>
-  </div>
-</header>
+      <header class="row" style="gap:12px;margin-bottom:8px;align-items:center">
+        <img class="login-logo" src="assets/logo-la-plage.png" alt="Camping La Plage — Argelès-sur-Mer" decoding="async">
+        <div>
+          <h1 id="title-login">Connexion</h1>
+          <p id="desc-login" class="muted">Entrez vos identifiants pour accéder au dashboard.</p>
+        </div>
+      </header>
+
       <form id="login-form" autocomplete="off">
         <div class="field"><label for="userId">Identifiant</label><input id="userId" name="userId" type="text" placeholder="ex: admin" required /></div>
         <div class="field"><label for="password">Mot de passe</label><input id="password" name="password" type="password" placeholder="••••••" required /></div>
-        <div class="row" style="justify-content:space-between;align-items:center;margin-top:6px"><div class="muted" id="error"></div><button class="btn" type="submit">Se connecter</button></div>
+        <div class="row" style="justify-content:space-between;align-items:center;margin-top:6px">
+          <div class="muted" id="error"></div>
+          <button class="btn" type="submit">Se connecter</button>
+        </div>
         <p class="muted" style="margin-top:10px;font-size:13px">Démo initiale: <code>admin / admin</code> (Admin). Vous pourrez créer d'autres comptes ensuite.</p>
+      </form>
+
+      <p class="muted" style="margin-top:8px">
+        Pas encore de compte ? <a href="#" id="showSignUp">Créer un compte</a>
+      </p>
+
+      <form id="signup-form" class="card" style="display:none; margin-top:10px">
+        <h3>Créer un compte</h3>
+        <div class="row">
+          <div class="field" style="flex:2 1 220px">
+            <label>Email</label>
+            <input name="email" type="email" placeholder="ex: rec01@demo.local" required>
+          </div>
+          <div class="field" style="flex:2 1 220px">
+            <label>Mot de passe</label>
+            <input name="password" type="password" minlength="6" placeholder="••••••" required>
+          </div>
+        </div>
+        <div class="row" style="justify-content:flex-end">
+          <button class="btn" type="submit">Créer mon compte</button>
+        </div>
+        <div class="muted" id="signupError" style="margin-top:6px"></div>
       </form>
     </section>
   </main>
@@ -352,109 +269,123 @@ html, body { width:100%; overflow-x:hidden; }
       <div class="content">
         <!-- Accueil -->
         <div class="tab" id="tab-accueil">
-          <div class="row" style="justify-content:space-between;margin-bottom:8px"><h2 style="margin:0">Vue d'ensemble</h2><span class="chip">🏕️ Camping La Plage ⭐⭐⭐</span></div>
+          <div class="row" style="justify-content:space-between;margin-bottom:8px">
+            <h2 style="margin:0">Vue d'ensemble</h2>
+            <span class="chip">🏕️ Camping La Plage ⭐⭐⭐</span>
+          </div>
           <p class="muted"></p>
-<div class="tiles" id="home-tiles">
-  <button id="tile-tech" class="tile" data-goto="interventions">
-    <h3>🛠️ Interventions</h3>
-    <div class="kpi-n" id="kpi-interv-tech">0</div>
-    <div class="muted">Tech — Ouvertes</div>
-  </button>
 
-  <button id="tile-men" class="tile" data-goto="interventions">
-    <h3>🧹 Interventions</h3>
-    <div class="kpi-n" id="kpi-interv-men">0</div>
-    <div class="muted">Ménage — Ouvertes</div>
-  </button>
+          <div class="tiles" id="home-tiles">
+            <button id="tile-tech" class="tile" data-goto="interventions">
+              <h3>🛠️ Interventions</h3>
+              <div class="kpi-n" id="kpi-interv-tech">0</div>
+              <div class="muted">Tech — Ouvertes</div>
+            </button>
 
-  <button class="tile" data-goto="chat">
-    <h3>💬 Chat</h3>
-    <div class="kpi-n" id="kpi-chat">0</div>
-    <div class="muted">Msgs non lus</div>
-  </button>
+            <button id="tile-men" class="tile" data-goto="interventions">
+              <h3>🧹 Interventions</h3>
+              <div class="kpi-n" id="kpi-interv-men">0</div>
+              <div class="muted">Ménage — Ouvertes</div>
+            </button>
 
-  <button class="tile" data-goto="personnes">
-    <h3>👥 Nombre de vacancier</h3>
-    <div class="kpi-n" id="kpi-people">0</div>
-    <div class="muted">Occupants</div>
-  </button>
-</div>
+            <button class="tile" data-goto="chat">
+              <h3>💬 Chat</h3>
+              <div class="kpi-n" id="kpi-chat">0</div>
+              <div class="muted">Msgs non lus</div>
+            </button>
 
+            <button class="tile" data-goto="personnes">
+              <h3>👥 Nombre de vacancier</h3>
+              <div class="kpi-n" id="kpi-people">0</div>
+              <div class="muted">Occupants</div>
+            </button>
+          </div>
         </div>
 
         <!-- Interventions -->
         <div class="tab" id="tab-interventions" hidden>
-          <div class="row" style="justify-content:space-between"><h2>Interventions</h2><div class="row"><button id="exportCsv" class="btn secondary">⬇️ Export CSV</button></div></div>
+          <div class="row" style="justify-content:space-between">
+            <h2>Interventions</h2>
+            <div class="row"><button id="exportCsv" class="btn secondary">⬇️ Export CSV</button></div>
+          </div>
           <p class="muted"></p>
 
           <!-- Form -->
-<form id="form-interv" class="card" style="display:none">
-  <div class="row" style="justify-content:space-between;align-items:center">
-    <h3 style="margin-bottom:6px">➕ Nouvelle intervention</h3>
-    <span class="chip">Assignation auto selon type</span>
-  </div>
+          <form id="form-interv" class="card" style="display:none">
+            <div class="row" style="justify-content:space-between;align-items:center">
+              <h3 style="margin-bottom:6px">➕ Nouvelle intervention</h3>
+              <span class="chip">Assignation auto selon type</span>
+            </div>
 
-  <div class="row" style="align-items:flex-start;gap:12px">
-    <div class="field" style="flex:1 1 160px">
-      <label>Type</label>
-      <select name="type" required>
-        <option value="Technique">Technique</option>
-        <option value="Ménage">Ménage</option>
-      </select>
-    </div>
+            <div class="row" style="align-items:flex-start;gap:12px">
+              <div class="field" style="flex:1 1 160px">
+                <label>Type</label>
+                <select name="type" required>
+                  <option value="Technique">Technique</option>
+                  <option value="Ménage">Ménage</option>
+                </select>
+              </div>
 
-    <div class="field" style="flex:1 1 160px">
-      <label>Priorité</label>
-      <select name="prio" required>
-        <option>Normale</option>
-        <option>Haute</option>
-        <option>Urgente</option>
-      </select>
-    </div>
+              <div class="field" style="flex:1 1 160px">
+                <label>Priorité</label>
+                <select name="prio" required>
+                  <option>Normale</option>
+                  <option>Haute</option>
+                  <option>Urgente</option>
+                </select>
+              </div>
 
-    <div class="field" style="flex:2 1 240px">
-      <label>Mobil Home</label>
-      <input name="lieu" placeholder="Ecrire..." required>
-    </div>
-  </div>
-  <div class="field">
-    <label>Détail</label>
-    <textarea name="detail" placeholder="Décrivez le problème..." required></textarea>
-  </div>
-  <!-- Champs visibles seulement Admin/Réception -->
-<div class="field">
-  <label>Clients présents ?</label>
-  <fieldset class="seg-field">
-    <div class="seg seg--yn" role="radiogroup" aria-label="Clients présents">
-      <input type="radio" id="clients-oui" name="clients" value="oui">
-      <label for="clients-oui">Oui</label>
-      <input type="radio" id="clients-non" name="clients" value="non" checked>
-      <label for="clients-non">Non</label>
-    </div>
-  </fieldset>
-</div>
+              <div class="field" style="flex:2 1 240px">
+                <label>Mobil Home</label>
+                <input name="lieu" placeholder="Ecrire..." required>
+              </div>
+            </div>
 
-<div class="field">
-  <label>Autorisation d'entrée ?</label>
-  <fieldset class="seg-field">
-    <div class="seg seg--yn" role="radiogroup" aria-label="Autorisation d'entrée">
-      <input type="radio" id="entry-oui" name="entry" value="oui">
-      <label for="entry-oui">Oui</label>
-      <input type="radio" id="entry-non" name="entry" value="non" checked>
-      <label for="entry-non">Non</label>
-    </div>
-  </fieldset>
-</div>
-  <div class="row" style="justify-content:flex-end">
-    <button class="btn" type="submit">Créer</button>
-  </div>
-</form>
+            <div class="field">
+              <label>Détail</label>
+              <textarea name="detail" placeholder="Décrivez le problème..." required></textarea>
+            </div>
 
+            <!-- Champs visibles seulement Admin/Réception -->
+            <div class="field">
+              <label>Clients présents ?</label>
+              <fieldset class="seg-field">
+                <div class="seg seg--yn" role="radiogroup" aria-label="Clients présents">
+                  <input type="radio" id="clients-oui" name="clients" value="oui">
+                  <label for="clients-oui">Oui</label>
+                  <input type="radio" id="clients-non" name="clients" value="non" checked>
+                  <label for="clients-non">Non</label>
+                </div>
+              </fieldset>
+            </div>
+
+            <div class="field">
+              <label>Autorisation d'entrée ?</label>
+              <fieldset class="seg-field">
+                <div class="seg seg--yn" role="radiogroup" aria-label="Autorisation d'entrée">
+                  <input type="radio" id="entry-oui" name="entry" value="oui">
+                  <label for="entry-oui">Oui</label>
+                  <input type="radio" id="entry-non" name="entry" value="non" checked>
+                  <label for="entry-non">Non</label>
+                </div>
+              </fieldset>
+            </div>
+
+            <div class="row" style="justify-content:flex-end">
+              <button class="btn" type="submit">Créer</button>
+            </div>
+          </form>
 
           <!-- Filtres -->
           <div class="row" style="margin-top:10px">
             <input id="searchInterv" placeholder="Recherche (MH, détail, id)" style="flex:2 1 220px">
-            <select id="filterStatus" style="flex:1 1 160px"><option value="all">Tous statuts</option><option>Ouverte</option><option>Assignée</option><option>En cours</option><option>Terminée</option></select>
+            <select id="filterStatus" style="flex:1 1 160px">
+              <option value="all">Tous statuts</option>
+              <option>Ouverte</option>
+              <option>Assignée</option>
+              <option>En cours</option>
+              <option>Terminée</option>
+            </select>
           </div>
 
           <!-- Files -->
@@ -473,10 +404,22 @@ html, body { width:100%; overflow-x:hidden; }
         <!-- Chat -->
         <div class="tab" id="tab-chat" hidden>
           <h2>Chat interne</h2>
-          <div class="row" style="gap:10px;margin:6px 0"><select id="chatChannel"><option value="general">#général</option><option value="reception">#réception</option><option value="techniciens">#techniciens</option><option value="menage">#ménage</option><option value="interventions">#interventions</option></select><span class="chip">Rôle courant: <strong id="roleBadge2">—</strong></span></div>
+          <div class="row" style="gap:10px;margin:6px 0">
+            <select id="chatChannel">
+              <option value="general">#général</option>
+              <option value="reception">#réception</option>
+              <option value="techniciens">#techniciens</option>
+              <option value="menage">#ménage</option>
+              <option value="interventions">#interventions</option>
+            </select>
+            <span class="chip">Rôle courant: <strong id="roleBadge2">—</strong></span>
+          </div>
           <div class="chat-wrap">
             <div id="chatList" class="chat-list" aria-live="polite"></div>
-            <form id="chatForm" class="row" style="padding:10px;background:#fff;border-top:1px solid #e5e7eb"><input id="chatMsg" placeholder="Écrire un message..." /><button class="btn" type="submit">Envoyer</button></form>
+            <form id="chatForm" class="row" style="padding:10px;background:#fff;border-top:1px solid #e5e7eb">
+              <input id="chatMsg" placeholder="Écrire un message..." />
+              <button class="btn" type="submit">Envoyer</button>
+            </form>
           </div>
         </div>
 
@@ -484,9 +427,28 @@ html, body { width:100%; overflow-x:hidden; }
         <div class="tab" id="tab-personnes" hidden>
           <h2>Personnes</h2>
           <div class="row">
-            <div class="card" style="flex:1 1 280px"><h3>👨‍👩‍👧‍👦 Clients présents</h3><div class="row" style="align-items:center;gap:10px;margin-top:6px"><button class="btn secondary" data-people="clients:-5">-5</button><button class="btn secondary" data-people="clients:-1">-1</button><div class="kpi-n" id="count-clients">0</div><button class="btn secondary" data-people="clients:+1">+1</button><button class="btn secondary" data-people="clients:+5">+5</button></div></div>
-            <div class="card" style="flex:1 1 280px"><h3>🧑‍🔧 Équipe</h3><div class="row" style="align-items:center;gap:10px;margin-top:6px"><button class="btn secondary" data-people="staff:-1">-1</button><div class="kpi-n" id="count-staff">0</div><button class="btn secondary" data-people="staff:+1">+1</button></div></div>
-            <div class="card" style="flex:1 1 280px"><h3>📊 Résumé</h3><p>Total sur site: <strong id="count-total">0</strong></p></div>
+            <div class="card" style="flex:1 1 280px">
+              <h3>👨‍👩‍👧‍👦 Clients présents</h3>
+              <div class="row" style="align-items:center;gap:10px;margin-top:6px">
+                <button class="btn secondary" data-people="clients:-5">-5</button>
+                <button class="btn secondary" data-people="clients:-1">-1</button>
+                <div class="kpi-n" id="count-clients">0</div>
+                <button class="btn secondary" data-people="clients:+1">+1</button>
+                <button class="btn secondary" data-people="clients:+5">+5</button>
+              </div>
+            </div>
+            <div class="card" style="flex:1 1 280px">
+              <h3>🧑‍🔧 Équipe</h3>
+              <div class="row" style="align-items:center;gap:10px;margin-top:6px">
+                <button class="btn secondary" data-people="staff:-1">-1</button>
+                <div class="kpi-n" id="count-staff">0</div>
+                <button class="btn secondary" data-people="staff:+1">+1</button>
+              </div>
+            </div>
+            <div class="card" style="flex:1 1 280px">
+              <h3>📊 Résumé</h3>
+              <p>Total sur site: <strong id="count-total">0</strong></p>
+            </div>
           </div>
         </div>
 
@@ -498,7 +460,9 @@ html, body { width:100%; overflow-x:hidden; }
             <div class="row">
               <div class="field" style="flex:2 1 200px"><label>Identifiant</label><input name="u" placeholder="ex: rec01" required></div>
               <div class="field" style="flex:2 1 200px"><label>Mot de passe</label><input name="p" placeholder="••••••" required></div>
-              <div class="field" style="flex:1 1 160px"><label>Rôle</label><select name="r"><option>Réception</option><option>Technicien</option><option>Ménage</option></select></div>
+              <div class="field" style="flex:1 1 160px"><label>Rôle</label>
+                <select name="r"><option>Réception</option><option>Technicien</option><option>Ménage</option></select>
+              </div>
               <div class="field" style="align-self:flex-end"><button class="btn" type="submit">Créer</button></div>
             </div>
           </form>
@@ -506,7 +470,36 @@ html, body { width:100%; overflow-x:hidden; }
             <h3>Liste des comptes</h3>
             <div id="userList" class="list"></div>
           </div>
+          <div class="card only-recadmin" style="margin-top:12px">
+  <h3 style="margin-bottom:10px">Invitations (Supabase)</h3>
         </div>
+<!-- ===== Invitations (Admin/Réception) ===== -->
+
+
+  <!-- Création d’une invitation -->
+  <form id="inviteForm" class="row" style="align-items:flex-end">
+    <div class="field" style="flex:2 1 260px">
+      <label>Email à inviter</label>
+      <input name="email" type="email" placeholder="ex: rec01@demo.local" required />
+    </div>
+    <div class="field" style="flex:1 1 200px">
+      <label>Rôle attribué</label>
+      <select name="role">
+        <option>Réception</option>
+        <option>Technicien</option>
+        <option>Ménage</option>
+        <option>Admin</option>
+      </select>
+    </div>
+    <div class="field">
+      <button class="btn" type="submit">Créer l’invitation</button>
+    </div>
+  </form>
+
+  <!-- Liste des invitations -->
+  <div id="invitesList" class="list" style="margin-top:10px"></div>
+  <div id="invitesMsg" class="muted" style="margin-top:6px"></div>
+</div>
 
         <!-- Rapports / Paramètres -->
         <div class="tab" id="tab-rapports" hidden><h2>Rapports</h2><p class="muted">À venir.</p></div>
@@ -524,29 +517,246 @@ html, body { width:100%; overflow-x:hidden; }
     <button id="tab-users-btn-m" style="display:none" data-tab="utilisateurs">👤<br><span style="font-size:12px">Utilisateurs</span></button>
     <button data-tab="rapports">📊<br><span style="font-size:12px">Rapports</span></button>
     <button data-tab="parametres">⚙️<br><span style="font-size:12px">Paramètres</span></button>
-
   </nav>
 
+  <!-- === Supabase SDK (remplace Firebase) === -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // === 0) Config Supabase ===
+    const SUPABASE_URL = "https://upszoarzjcmiowzqfnff.supabase.co"; // <- tes valeurs
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVwc3pvYXJ6amNtaW93enFmbmZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg0NDYwNjcsImV4cCI6MjA3NDAyMjA2N30.3Knmz9xQpA-wPfiVZnnoXlXBwqPpedIq42nAZxCmITU";
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // === 1) Fonctions "compat" attendues par le code existant ===
+    // -> Login avec email/mot de passe
+    window.firebaseLogin = async function(email, password){
+      const { data, error } = await sb.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      const uid = data.user.id;
+
+      // Récupérer le rôle depuis la table profiles (id = auth.users.id)
+      let role = "Technicien";
+      const { data: prof, error: perr } = await sb
+        .from("profiles")
+        .select("role")
+        .eq("id", uid)
+        .single();
+
+      if (!perr && prof?.role) role = prof.role;
+
+      localStorage.setItem("demo-dashboard-session", JSON.stringify({
+        userId: email.split("@")[0], role, when: Date.now()
+      }));
+      return true;
+    };
+
+    // -> Signup avec "invitation" (table invites)
+    async function signupWithInvite(email, password){
+      // 1/ Vérifier une invite active
+      const { data: invites, error: invErr } = await sb
+        .from("invites")
+        .select("id, role, used")
+        .eq("email", email.toLowerCase())
+        .eq("used", false)
+        .limit(1);
+
+      if (invErr) throw invErr;
+      if (!invites || invites.length === 0) throw new Error("Aucune invitation active pour cet email.");
+
+      const invite = invites[0];
+
+      // 2/ Créer le compte
+      const { data: sign, error: sErr } = await sb.auth.signUp({
+        email,
+        password
+      });
+      if (sErr) throw sErr;
+      const uid = sign.user.id;
+
+      // 3/ Créer/mettre à jour le profil (role)
+      const { error: pErr } = await sb
+        .from("profiles")
+        .upsert({ id: uid, role: invite.role }, { onConflict: "id" });
+      if (pErr) throw pErr;
+
+      // 4/ Marquer l'invite "used"
+      const { error: uErr } = await sb
+        .from("invites")
+        .update({ used: true })
+        .eq("id", invite.id);
+      if (uErr) throw uErr;
+
+      // 5/ Poser la session locale (comme avant)
+      localStorage.setItem("demo-dashboard-session", JSON.stringify({
+        userId: email.split("@")[0], role: invite.role, when: Date.now()
+      }));
+    }
+    window._signupWithInvite = signupWithInvite;
+
+    // 2) Hooks UI de signup
+    document.getElementById("showSignUp")?.addEventListener("click",(e)=>{
+      e.preventDefault();
+      document.getElementById("signup-form").style.display="block";
+    });
+    document.getElementById("signup-form")?.addEventListener("submit", async (e)=>{
+      e.preventDefault();
+      const f = new FormData(e.target);
+      const email = String(f.get("email")||"").trim().toLowerCase();
+      const pass  = String(f.get("password")||"").trim();
+      const out = document.getElementById("signupError");
+      out.textContent = "";
+      try{
+        await window._signupWithInvite(email, pass);
+        window.enforceAuthUI?.();
+      }catch(err){
+        out.textContent = err?.message || "Création impossible. Vérifiez l’invitation.";
+      }
+    });
+
+/* ====================== INVITATIONS (Supabase) ====================== */
+// Helpers
+function uiMsg(el, txt, ok=true){
+  el.textContent = txt || "";
+  el.style.color = ok ? "#065f46" : "#991b1b";
+}
+
+// Rendu d’une ligne d’invite
+function renderInviteRow(inv){
+  const used = inv.used ? "yes" : "no";
+  const chipUsed = `<span class="chip" style="background:${inv.used ? '#ecfdf5' : '#fffbeb'};border-color:${inv.used ? '#a7f3d0' : '#f59e0b'};color:${inv.used ? '#065f46' : '#92400e'}">${inv.used ? 'UTILISÉE' : 'ACTIVE'}</span>`;
+  const when = inv.created_at ? new Date(inv.created_at).toLocaleString() : "—";
+
+  const d = document.createElement("div");
+  d.className = "it";
+  d.innerHTML = `
+    <div class="hdr" style="justify-content:space-between">
+      <div class="row" style="gap:8px">
+        <div class="id">${inv.email}</div>
+        <span class="badge">Rôle: <b>${inv.role || '—'}</b></span>
+        ${chipUsed}
+      </div>
+      <div class="row">
+        ${!inv.used ? `<button class="btn danger small" data-inv-del="${inv.id}">Supprimer</button>` : ""}
+      </div>
+    </div>
+    <div class="muted" style="font-size:.9rem">Créée le ${when}${inv.used_at ? ` • utilisée le ${new Date(inv.used_at).toLocaleString()}` : ""}</div>
+  `;
+  return d;
+}
+
+// Charge la liste
+async function loadInvites(){
+  const list = document.getElementById("invitesList");
+  const msg  = document.getElementById("invitesMsg");
+  if(!list) return;
+
+  list.innerHTML = "";
+  uiMsg(msg, "Chargement…", true);
+
+  const { data, error } = await sb
+    .from("invites")
+    .select("*")
+    .order("created_at", { ascending:false });
+
+  if(error){
+    uiMsg(msg, "Erreur de lecture des invitations : " + (error.message || error), false);
+    return;
+  }
+  uiMsg(msg, data.length ? "" : "Aucune invitation pour le moment.");
+  data.forEach(inv => list.appendChild(renderInviteRow(inv)));
+}
+
+// Crée une invitation
+async function createInvite(email, role){
+  const { data, error } = await sb
+    .from("invites")
+    .insert({ email: String(email).toLowerCase().trim(), role })
+    .select()
+    .single();
+  if(error) throw error;
+  return data;
+}
+
+// Supprime une invitation (si non utilisée)
+async function deleteInvite(id){
+  const { error } = await sb.from("invites").delete().eq("id", id);
+  if(error) throw error;
+}
+
+// Hook formulaire
+document.getElementById("inviteForm")?.addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const f   = new FormData(e.target);
+  const msg = document.getElementById("invitesMsg");
+  uiMsg(msg, "");
+
+  try{
+    await createInvite(f.get("email"), f.get("role"));
+    e.target.reset();
+    await loadInvites();
+    uiMsg(msg, "Invitation créée ✅", true);
+  }catch(err){
+    uiMsg(msg, "Création impossible : " + (err?.message || err), false);
+  }
+});
+
+// Hook suppression (délégation)
+document.getElementById("invitesList")?.addEventListener("click", async (e)=>{
+  const btn = e.target.closest("[data-inv-del]");
+  if(!btn) return;
+  if(!confirm("Supprimer cette invitation ?")) return;
+
+  const id  = btn.getAttribute("data-inv-del");
+  const msg = document.getElementById("invitesMsg");
+  uiMsg(msg, "");
+
+  try{
+    await deleteInvite(id);
+    await loadInvites();
+    uiMsg(msg, "Invitation supprimée ✅", true);
+  }catch(err){
+    uiMsg(msg, "Suppression impossible : " + (err?.message || err), false);
+  }
+});
+
+// Charger la liste quand l’utilisateur est authentifié dans l’app
+// (ton enforceAuthUI() est déjà appelé au chargement)
+const _oldEnforce = enforceAuthUI;
+enforceAuthUI = function(){
+  _oldEnforce?.();
+  // Montrer/MàJ la liste seulement si connecté et rôle Admin/Réception
+  if(isLogged()){
+    const c = current();
+    if(c && (c.role === "Admin" || c.role === "Réception")){
+      loadInvites();
+    }
+  }
+  if (canManage && typeof loadInvites === "function") {
+  loadInvites();
+}
+
+}
+</script>
+
 <script>
-/* ===== Constantes / Users ===== */
-const KEY="demo-dashboard-session", SKEY="camping-demo-state", UKEY="camping-users";
+/* ====== Clés session locales minimalistes (rôle, userId) ====== */
+const KEY="demo-dashboard-session", UKEY="camping-users"; // UKEY reste pour la page "Utilisateurs" démo locale
 const defaultUsers=[{u:"admin",p:"admin",r:"Admin"}];
 function getUsers(){ try{const u=JSON.parse(localStorage.getItem(UKEY)); return Array.isArray(u)&&u.length?u:defaultUsers;}catch{return defaultUsers;} }
 function saveUsers(l){ localStorage.setItem(UKEY, JSON.stringify(l)); }
 function addUser(u,p,r){ const l=getUsers(); if(l.some(x=>x.u===u)) return false; l.push({u,p,r}); saveUsers(l); return true; }
 function delUser(u){ saveUsers(getUsers().filter(x=>x.u!==u || x.r==="Admin")); }
 
-/* ===== Auth ===== */
 function login(u,p){ const user=getUsers().find(x=>x.u===u && x.p===p); if(user){ localStorage.setItem(KEY, JSON.stringify({userId:u, role:user.r, when:Date.now()})); return true;} return false; }
 function current(){ try{return JSON.parse(localStorage.getItem(KEY))}catch{return null} }
 function isLogged(){ return !!current(); }
 
-/* ===== UI ===== */
+/* ====== UI de base ====== */
 function setGreeting(){ const h=new Date().getHours(); document.getElementById("hello").textContent=h<12?"Bonjour !":(h<18?"Bon après-midi !":"Bonsoir !"); }
 function enforceAuthUI(){
   if(isLogged()){
     const c=current(); document.body.classList.add("is-auth");
-        const canManage = (c.role==="Admin" || c.role==="Réception");
+    const canManage = (c.role==="Admin" || c.role==="Réception");
     document.body.classList.toggle("is-recadmin", canManage);
     document.getElementById("sessionUser").textContent="Connecté : "+c.userId;
     document.getElementById("roleBadge").textContent=c.role; document.getElementById("roleBadge2").textContent=c.role;
@@ -554,36 +764,48 @@ function enforceAuthUI(){
     document.getElementById("form-interv").style.display=(isAdmin||c.role==="Réception")?"block":"none";
     document.getElementById("tab-users-btn").style.display=isAdmin?"block":"none";
     document.getElementById("tab-users-btn-m").style.display=isAdmin?"block":"none";
-    // Accueil : n'afficher que la tuile pertinente selon le rôle
-if(isAdmin || c.role==="Réception"){
-  homeTileTech?.classList.remove("hidden");
-  homeTileMen?.classList.remove("hidden");
-} else if(c.role==="Technicien"){
-  homeTileTech?.classList.remove("hidden");
-  homeTileMen?.classList.add("hidden");
-} else if(c.role==="Ménage"){
-  homeTileTech?.classList.add("hidden");
-  homeTileMen?.classList.remove("hidden");
-}
+
+    // Accueil : tuile selon rôle
+    if(isAdmin || c.role==="Réception"){
+      homeTileTech?.classList.remove("hidden"); homeTileMen?.classList.remove("hidden");
+    } else if(c.role==="Technicien"){
+      homeTileTech?.classList.remove("hidden"); homeTileMen?.classList.add("hidden");
+    } else if(c.role==="Ménage"){
+      homeTileTech?.classList.add("hidden");    homeTileMen?.classList.remove("hidden");
+    }
 
     history.replaceState({app:true}, "", "#app");
-    renderInterventions(); renderUsers();
+    bootstrapData(); // charge depuis Supabase
   }else{
     document.body.classList.remove("is-auth"); history.replaceState({app:false}, "", "#login");
   }
 }
 
-/* ===== State ===== */
-const state={ interventions:[], chat:[], people:{clients:0, staff:0} };
-function loadState(){ try{const s=JSON.parse(localStorage.getItem(SKEY)); if(s) Object.assign(state,s);}catch{} }
-function saveState(){ localStorage.setItem(SKEY, JSON.stringify(state)); refreshAllKPIs(); }
+/* ====== Login events ====== */
+document.getElementById("login-form").addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const id = e.target.userId.value.trim();
+  const pw = e.target.password.value.trim();
+  const out = document.getElementById("error");
+  out.textContent = "";
 
-/* ===== Login events ===== */
-document.getElementById("login-form").addEventListener("submit",e=>{
-  e.preventDefault(); const id=e.target.userId.value.trim(); const pw=e.target.password.value.trim();
-  if(login(id,pw)){ enforceAuthUI(); } else { document.getElementById("error").textContent="Identifiants invalides."; }
+  try {
+    if (id.includes("@")) {
+      await window.firebaseLogin(id, pw); // => pose KEY avec role/userId
+    } else {
+      if (!login(id, pw)) throw new Error("Identifiants invalides.");
+    }
+    enforceAuthUI();
+  } catch (err) {
+    out.textContent = err?.message || "Connexion impossible.";
+  }
 });
-document.getElementById("logoutBtn").addEventListener("click",()=>{ localStorage.removeItem(KEY); enforceAuthUI(); });
+
+document.getElementById("logoutBtn").addEventListener("click", async ()=>{
+  try{ await sb.auth.signOut(); }catch{}
+  localStorage.removeItem(KEY);
+  enforceAuthUI();
+});
 
 /* ===== Tabs ===== */
 function selectTab(name){
@@ -604,109 +826,244 @@ document.addEventListener("touchend",e=>{let endX=e.changedTouches[0].clientX, d
     const i=tabs.findIndex(t=>document.querySelector(`.mobile-tabs button[data-tab="${t}"]`).classList.contains("active"));
     const n=d<0?(i+1)%tabs.length:(i-1+tabs.length)%tabs.length; selectTab(tabs[n]); }});
 
-/* ===== Interventions ===== */
+/* ====== Data layer Supabase ====== */
 const listTech=document.getElementById("list-tech"), listMen=document.getElementById("list-men");
 const searchInterv=document.getElementById("searchInterv"), filterStatus=document.getElementById("filterStatus");
 const homeTileTech = document.getElementById("tile-tech");
 const homeTileMen  = document.getElementById("tile-men");
-document.getElementById("form-interv").addEventListener("submit",e=>{
-  e.preventDefault(); const d=new FormData(e.target), c=current(), type=d.get("type"), now=new Date().toISOString();
-const clientsPresent = d.get("clients") === "oui";
-const entryAllowed   = d.get("entry")   === "oui";
+const chatList = document.getElementById("chatList");
+const chatForm = document.getElementById("chatForm");
+const chatMsg  = document.getElementById("chatMsg");
+const chatChannel = document.getElementById("chatChannel");
 
-const it = {
-  id: Date.now().toString().slice(-6),
-  type, prio: d.get("prio"), lieu: d.get("lieu"), detail: d.get("detail"),
-  assigne: type==="Ménage" ? "Ménage" : "Techniciens",
-  status: "Assignée", created: now,
-  createdBy: `${c.userId} (${c.role})`, handledBy: null, notes: [],
-  clientsPresent, entryAllowed,
-  history: [
-    {action:"Créée",by:`${c.userId} (${c.role})`,at:now},
-    {action:`Assignée à ${type==="Ménage"?"Ménage":"Techniciens"}`,by:`${c.userId} (${c.role})`,at:now}
-  ]
-};
+let Intervs = [];  // mémoire locale (miroir de la DB)
+let Notes   = {};  // {intervention_id:[...]}
+let History = {};
+let People  = { clients:0, staff:0 };
+let Chat    = [];
 
+/* ------ Chargement initial ------ */
+async function bootstrapData(){
+  if(!isLogged()) return;
+  await Promise.all([
+    loadInterventions(),
+    loadNotesAndHistory(),
+    loadStats(),
+    loadChatByChannel(chatChannel.value)
+  ]);
+  bindRealtime();
+  renderAll();
+}
 
-  state.interventions.unshift(it); saveState(); e.target.reset(); renderInterventions();
+/* ------ Interventions ------ */
+async function loadInterventions(){
+  const { data, error } = await sb
+    .from('interventions')
+    .select('*')
+    .order('created_at', { ascending:false });
+  if(!error && data){ Intervs = data; }
+}
+
+async function loadNotesAndHistory(){
+  const [n,h] = await Promise.all([
+    sb.from('interv_notes').select('*').order('created_at', { ascending:true }),
+    sb.from('interv_history').select('*').order('at', { ascending:true })
+  ]);
+  Notes = {}; (n.data||[]).forEach(x=>{ (Notes[x.intervention_id] ||= []).push(x); });
+  History = {}; (h.data||[]).forEach(x=>{ (History[x.intervention_id] ||= []).push(x); });
+}
+
+/* Création via formulaire */
+document.getElementById("form-interv").addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const d=new FormData(e.target), c=current(), type=d.get("type");
+  const now=new Date().toISOString();
+  const clientsPresent = d.get("clients")==="oui";
+  const entryAllowed   = d.get("entry")==="oui";
+  const assigne = type==="Ménage" ? "Ménage" : "Techniciens";
+
+  const insert = {
+    type, prio: d.get("prio"), lieu: d.get("lieu"), detail: d.get("detail"),
+    assigne, status:"Assignée",
+    created_by: (sb.auth.getUser && (await sb.auth.getUser())?.data?.user?.id) || null,
+    handled_by: null,
+    clients_present: clientsPresent,
+    entry_allowed: entryAllowed
+  };
+
+  const { data, error } = await sb.from('interventions').insert(insert).select().single();
+  if(error){ alert("Création impossible : "+error.message); return; }
+
+  await sb.from('interv_history').insert([
+    { intervention_id: data.id, action: "Créée", by_user: `${c.userId} (${c.role})` },
+    { intervention_id: data.id, action: `Assignée à ${assigne}`, by_user: `${c.userId} (${c.role})` }
+  ]);
+
+  (e.target).reset();
 });
+
+/* Actions sur carte */
+function actionInterv(act, it){
+  const c=current();
+  const now = new Date().toISOString();
+  if(act==="assign"){
+    const next = it.assigne==="Techniciens" ? "Ménage" : "Techniciens";
+    return sb.from('interventions').update({ assigne: next, status:"Assignée", handled_by: null }).eq('id', it.id)
+      .then(()=> sb.from('interv_history').insert({ intervention_id: it.id, action:`Re-assignée à ${next}`, by_user:`${c.userId} (${c.role})` }));
+  }
+  if(act==="start"){
+    return sb.from('interventions').update({ status:"En cours", handled_by:`${c.userId} (${c.role})` }).eq('id', it.id)
+      .then(()=> sb.from('interv_history').insert({ intervention_id: it.id, action:`En cours`, by_user:`${c.userId} (${c.role})` }));
+  }
+  if(act==="done"){
+    return sb.from('interventions').update({ status:"Terminée", handled_by:`${c.userId} (${c.role})` }).eq('id', it.id)
+      .then(()=> sb.from('interv_history').insert({ intervention_id: it.id, action:`Terminée`, by_user:`${c.userId} (${c.role})` }));
+  }
+  if(act==="del"){
+    return sb.from('interv_history').insert({ intervention_id: it.id, action:`Supprimée`, by_user:`${c.userId} (${c.role})` })
+      .then(()=> sb.from('interventions').delete().eq('id', it.id));
+  }
+}
+
+/* Sauvegarde note */
+async function saveNote(intervId, text){
+  const c=current();
+  await sb.from('interv_notes').insert({
+    intervention_id: intervId,
+    by_user: `${c.userId} (${c.role})`,
+    body: text
+  });
+  await sb.from('interv_history').insert({
+    intervention_id: intervId,
+    action:"Note ajoutée",
+    by_user: `${c.userId} (${c.role})`
+  });
+}
+
+/* ------ Chat ------ */
+chatChannel.addEventListener("change", async () => {
+  await loadChatByChannel(chatChannel.value);
+  renderChat();
+});
+
+async function loadChatByChannel(ch){
+  const { data, error } = await sb
+    .from('chat_messages')
+    .select('*')
+    .eq('channel', ch)
+    .order('created_at', { ascending:true })
+    .limit(300);
+  if(!error){ Chat = data || []; }
+}
+
+chatForm.addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  if(!isLogged()) return;
+  const text = (chatMsg.value||"").trim();
+  if(!text) return;
+  const c = current();
+  const { error } = await sb.from('chat_messages').insert({
+    channel: chatChannel.value,
+    user_name: c.userId,
+    role: c.role,
+    text
+  });
+  if(error){ alert(error.message); return; }
+  chatMsg.value = "";
+});
+
+/* ------ Personnes (site_stats) ------ */
+document.getElementById("tab-personnes").addEventListener("click", async e=>{
+  const b=e.target.closest("[data-people]"); if(!b) return;
+  const [k,d]=b.dataset.people.split(":"); const delta = Number(d);
+  const next = { ...People, [k]: Math.max(0,(People[k]||0)+delta) };
+  const { error } = await sb.from('site_stats').update({ clients: next.clients, staff: next.staff, updated_at: new Date().toISOString() }).eq('id',1);
+  if(error) alert(error.message);
+});
+
+async function loadStats(){
+  const { data, error } = await sb.from('site_stats').select('*').eq('id',1).single();
+  if(!error && data){ People = { clients: data.clients||0, staff: data.staff||0 }; }
+}
+
+/* ------ Realtime ------ */
+let RT = null;
+function bindRealtime(){
+  if(RT){ sb.removeChannel(RT); }
+  RT = sb.channel('dashboard-stream')
+    .on('postgres_changes', { event:'*', schema:'public', table:'interventions' }, async payload=>{
+      // reload only this table row(s)
+      await loadInterventions(); renderInterventions(); refreshKPIs();
+    })
+    .on('postgres_changes', { event:'*', schema:'public', table:'interv_notes' }, async payload=>{
+      await loadNotesAndHistory(); renderInterventions();
+    })
+    .on('postgres_changes', { event:'*', schema:'public', table:'interv_history' }, async payload=>{
+      await loadNotesAndHistory(); renderInterventions();
+    })
+    .on('postgres_changes', { event:'insert', schema:'public', table:'chat_messages' }, payload=>{
+      const ch = chatChannel.value;
+      if(payload.new.channel===ch){ Chat.push(payload.new); renderChat(); }
+      refreshKPIs();
+    })
+    .on('postgres_changes', { event:'update', schema:'public', table:'site_stats' }, payload=>{
+      People = { clients: payload.new.clients||0, staff: payload.new.staff||0 };
+      renderPeople(); refreshKPIs();
+    })
+    .subscribe();
+}
+
+/* ======= RENDERING ======= */
 [searchInterv, filterStatus].forEach(el=>el.addEventListener("input", renderInterventions));
 
-document.addEventListener("input", e=>{
-  if(e.target.matches('.noteform textarea')){
-    e.target.style.height = "auto";
-    e.target.style.height = e.target.scrollHeight + "px";
-  }
-});
+const STATUS3 = {
+  assign:   { pill:"st-assign",   card:"card-assign" },
+  progress: { pill:"st-progress", card:"card-progress" },
+  done:     { pill:"st-done",     card:"card-done" }
+};
+function statusKey(s){ if(s==="Terminée") return "done"; if(s==="En cours") return "progress"; return "assign"; }
+function escapeHtml(s){ return (s||"").replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c])); }
+
+function renderAll(){
+  renderInterventions();
+  renderPeople();
+  renderChat();
+  refreshKPIs();
+}
 
 function renderInterventions(){
   if(!isLogged()) return;
-
   const c=current(),
         q=(searchInterv.value||"").toLowerCase(),
         s=filterStatus.value;
 
-  // Elements des cartes (conteneurs des listes)
   const techCard = listTech.parentElement;
   const menCard  = listMen.parentElement;
 
-  // Filtre texte/statut commun
-  const filtered = state.interventions.filter(i =>
+  const filtered = Intervs.filter(i =>
     (s==="all" || (s==="Assignée" ? i.status.startsWith("Assignée") : i.status===s)) &&
-    (i.lieu.toLowerCase().includes(q) || i.detail.toLowerCase().includes(q) || i.id.includes(q))
+    ((i.lieu||"").toLowerCase().includes(q) || (i.detail||"").toLowerCase().includes(q) || (i.short_id||"").includes(q))
   );
 
-  // Réception/Admin : voient tout
   if(c.role==="Réception" || c.role==="Admin"){
-    techCard.hidden = false;
-    menCard.hidden  = false;
-    techCard.style.opacity = 1;
-    menCard.style.opacity  = 1;
-
+    techCard.hidden = false; menCard.hidden  = false;
     renderList(listTech, filtered.filter(i=>i.assigne==="Techniciens"), c);
     renderList(listMen,  filtered.filter(i=>i.assigne==="Ménage"),      c);
     return;
   }
 
-  // Rôles opérationnels : ne voient QUE leur file
   const isTech = c.role==="Technicien";
   const myQueue = isTech ? "Techniciens" : "Ménage";
-
-  // Afficher uniquement la bonne carte, cacher l'autre
-  if(isTech){
-    techCard.hidden = false;  menCard.hidden = true;
-  }else{
-    techCard.hidden = true;   menCard.hidden = false;
-  }
-  // Par sécurité, enlever toute opacité résiduelle
-  techCard.style.opacity = 1;
-  menCard.style.opacity  = 1;
-
-  // Ne rendre que la liste de la file autorisée
+  if(isTech){ techCard.hidden=false; menCard.hidden=true; } else { techCard.hidden=true; menCard.hidden=false; }
   renderList(isTech ? listTech : listMen, filtered.filter(i=>i.assigne===myQueue), c);
-
-  // Vider la liste de la file cachée pour éviter une navigation clavier/lecteur d’écran
-  renderList(isTech ? listMen : listTech, [], c);
-}
-// 3 couleurs pour 4 statuts → "Ouverte" et "Assignée" partagent la couleur ambre
-const STATUS3 = {
-  assign:   { pill:"st-assign",   card:"card-assign" },    // Ouverte / Assignée
-  progress: { pill:"st-progress", card:"card-progress" },  // En cours
-  done:     { pill:"st-done",     card:"card-done" }       // Terminée
-};
-function statusKey(s){
-  if(s==="Terminée") return "done";
-  if(s==="En cours") return "progress";
-  return "assign"; // "Ouverte" ou "Assignée"
+  renderList(isTech ? listMen  : listTech, [], c);
 }
 
 function renderList(container, items, ctx){ container.innerHTML=""; items.forEach(i=>container.appendChild(itemCard(i,ctx))); }
 function itemCard(i, ctx){
   const isReception = ctx.role==="Réception"||ctx.role==="Admin";
   const canWork = (ctx.role==="Technicien"&&i.assigne==="Techniciens")||(ctx.role==="Ménage"&&i.assigne==="Ménage");
-
-  // Autoriser l'ajout de note après clôture par la bonne personne
-  const canAddNote = canWork && i.status==="Terminée" && i.handledBy && i.handledBy.startsWith(ctx.userId);
+  const canAddNote = canWork && i.status==="Terminée" && i.handled_by && i.handled_by.startsWith(ctx.userId);
 
   const st = STATUS3[statusKey(i.status)];
   const queueClass = i.assigne==="Ménage" ? "queue-men" : "queue-tech";
@@ -714,52 +1071,45 @@ function itemCard(i, ctx){
   const wrap = document.createElement("div");
   wrap.className = `it ${queueClass} ${st.card}`;
 
-  // Header compact : #id • type • priorité (si réception) • Statut coloré
   const hdr = `
     <div class="hdr">
-      <div class="id">#${i.id}</div>
+      <div class="id">#${i.short_id || (i.id+"").slice(-6)}</div>
       <div class="type">• ${i.type}</div>
       ${isReception ? `<span class="badge">Priorité: ${i.prio}</span>` : ""}
       <span class="badge status-pill ${st.pill}">Statut: ${i.status}</span>
-    </div>
-  `;
+    </div>`;
 
-  // Grille d'infos clés
-const meta = `
+  const meta = `
   <div class="meta-grid">
     <div class="meta-pill"><b>Lieu</b> : ${escapeHtml(i.lieu)}</div>
-    ${i.createdBy ? `<div class="meta-pill"><b>Créée par</b> : ${escapeHtml(i.createdBy)}</div>` : ""}
-    <div class="meta-pill"><b>Pris par</b> : ${i.handledBy ? escapeHtml(i.handledBy) : "—"}</div>
+    <div class="meta-pill"><b>Créée par</b> : ${i.created_by ? "profil lié" : "—"}</div>
+    <div class="meta-pill"><b>Pris par</b> : ${i.handled_by ? escapeHtml(i.handled_by) : "—"}</div>
 
-    <div class="meta-pill ${i.clientsPresent ? 'yes' : 'no'}">
-      <b>Clients présents</b> : ${i.clientsPresent ? 'Oui' : 'Non'}
+    <div class="meta-pill ${i.clients_present ? 'yes' : 'no'}">
+      <b>Clients présents</b> : ${i.clients_present ? 'Oui' : 'Non'}
     </div>
-    <div class="meta-pill ${i.entryAllowed ? 'yes' : 'no'}">
-      <b>Autorisation d’entrée</b> : ${i.entryAllowed ? 'Oui' : 'Non'}
+    <div class="meta-pill ${i.entry_allowed ? 'yes' : 'no'}">
+      <b>Autorisation d’entrée</b> : ${i.entry_allowed ? 'Oui' : 'Non'}
     </div>
-  </div>
-`;
+  </div>`;
 
-  // Détail initial bien visible
   const detail = `
     <div class="detail-box ${i.assigne==='Ménage'?'menage':''}">
       <span class="label">Détail initial</span>
       <div class="txt">${escapeHtml(i.detail)}</div>
-    </div>
-  `;
+    </div>`;
 
-  // Actions selon rôle/état
   const actions=[];
   if(isReception) actions.push(btn("Re-assigner","assign",i.id));
   if(canWork && (i.status==="Assignée"||i.status==="Ouverte")) actions.push(btn("En cours","start",i.id));
   if(canWork && i.status==="En cours") actions.push(btn("Terminer","done",i.id));
   if(isReception) actions.push(btn("Supprimer","del",i.id,"danger"));
 
-  // Notes existantes + formulaire éventuel
-  const notesList = (i.notes||[]).map(n=>`
+  const notesArr = Notes[i.id] || [];
+  const notesList = notesArr.map(n=>`
     <div class="note">
-      <div>${escapeHtml(n.text)}</div>
-      <small>Ajoutée par ${escapeHtml(n.by)} — ${new Date(n.at).toLocaleString()}</small>
+      <div>${escapeHtml(n.body)}</div>
+      <small>Ajoutée par ${escapeHtml(n.by_user||'—')} — ${new Date(n.created_at).toLocaleString()}</small>
     </div>
   `).join("");
 
@@ -770,12 +1120,11 @@ const meta = `
       <div class="actions">
         <button class="btn small" data-act="save-note" data-i="${i.id}">Enregistrer</button>
       </div>
-    </div>
-  ` : "";
+    </div>` : "";
 
-  // Historique
-  const timeline = (i.history||[]).map(h=>`
-    <div class="muted" style="font-size:.85rem">• ${escapeHtml(h.action)} — ${escapeHtml(h.by)} — ${new Date(h.at).toLocaleString()}</div>
+  const histArr = History[i.id] || [];
+  const timeline = histArr.map(h=>`
+    <div class="muted" style="font-size:.85rem">• ${escapeHtml(h.action)} — ${escapeHtml(h.by_user||'—')} — ${new Date(h.at).toLocaleString()}</div>
   `).join("");
 
   wrap.innerHTML =
@@ -785,67 +1134,79 @@ const meta = `
     `<div class="actions-row">${actions.join(" ")}</div>` +
     `<details style="margin-top:8px"><summary style="cursor:pointer">Historique</summary>${timeline||'<div class="muted" style="font-size:.85rem">Aucun événement.</div>'}</details>`;
 
+  // Events (actions boutons + note)
+  wrap.addEventListener("click", async (e)=>{
+    const b=e.target.closest("[data-act]"); if(!b) return;
+    const act=b.dataset.act;
+    if(act==="save-note"){
+      const ta = wrap.querySelector(`textarea[data-note="${i.id}"]`);
+      const txt = (ta?.value||"").trim(); if(!txt) return;
+      await saveNote(i.id, txt);
+      ta.value="";
+      return;
+    }
+    await actionInterv(act, i);
+  });
+
   return wrap;
 }
 
-
 function btn(txt,act,id,klass="secondary"){ return `<button class="btn ${klass} small" data-act="${act}" data-i="${id}">${txt}</button>`; }
-[listTech, listMen].forEach(el=>el.addEventListener("click",e=>{
-  const b=e.target.closest("[data-act]"); if(!b) return; const id=b.dataset.i; const it=state.interventions.find(x=>x.id===id); if(!it) return;
-  const act=b.dataset.act, c=current(), now=new Date().toISOString();
-  if(act==="assign"){ it.assigne=it.assigne==="Techniciens"?"Ménage":"Techniciens"; it.status="Assignée"; it.handledBy=null; (it.history ||= []).push({action:`Re-assignée à ${it.assigne}`,by:`${c.userId} (${c.role})`,at:now}); }
-  if(act==="start"){ it.status="En cours"; it.handledBy=`${c.userId} (${c.role})`; (it.history ||= []).push({action:"En cours",by:`${c.userId} (${c.role})`,at:now}); }
-  if(act==="done"){ it.status="Terminée"; it.handledBy=`${c.userId} (${c.role})`; (it.history ||= []).push({action:"Terminée",by:`${c.userId} (${c.role})`,at:now}); }
-  if(act==="del"){ (it.history ||= []).push({action:"Supprimée",by:`${c.userId} (${c.role})`,at:now}); state.interventions=state.interventions.filter(x=>x.id!==id); }
-  if(act==="save-note"){
-    const ta = document.querySelector(`textarea[data-note="${id}"]`);
-    const txt = (ta?.value||"").trim();
-    if(!txt) return;
 
-    (it.notes ||= []).push({ text: txt, by: `${c.userId} (${c.role})`, at: now });
-    (it.history ||= []).push({ action: "Note ajoutée", by: `${c.userId} (${c.role})`, at: now });
-
-    saveState();
-    renderInterventions();
-    return;
-  }
-
-  saveState();
-  renderInterventions();
-}));
-
-/* ===== Chat ===== */
-const chatList=document.getElementById("chatList"), chatForm=document.getElementById("chatForm"), chatMsg=document.getElementById("chatMsg"), chatChannel=document.getElementById("chatChannel");
-chatChannel.addEventListener("change",renderChat);
-chatForm.addEventListener("submit",e=>{
-  e.preventDefault(); const text=(chatMsg.value||"").trim(); if(!text) return; const c=current();
-  state.chat.push({id:Date.now(), role:c.role, user:c.userId, channel:chatChannel.value, text, when:new Date().toISOString(), read:false});
-  chatMsg.value=""; saveState(); renderChat();
-});
+/* ===== Chat Render ===== */
 function renderChat(){
-  chatList.innerHTML=""; const ch=chatChannel.value;
-  state.chat.filter(m=>m.channel===ch).slice(-300).forEach(m=>{
-    const d=document.createElement("div"); d.className="msg"+(m.user===current().userId?" me":"");
-    d.innerHTML=`<div class="muted" style="font-size:.8rem;margin-bottom:4px">${m.role} – ${m.user} • ${new Date(m.when).toLocaleString()}</div>${escapeHtml(m.text)}`;
-    chatList.appendChild(d); m.read=true;
+  if(!isLogged()) return;
+  chatList.innerHTML = "";
+  const me = current();
+  Chat.slice(-300).forEach(m=>{
+    const mine = me && (m.user_name === me.userId);
+    const d = document.createElement("div");
+    d.className = "msg" + (mine ? " me" : "");
+    d.innerHTML =
+      `<div class="muted" style="font-size:.8rem;margin-bottom:4px">
+         ${m.role} – ${m.user_name} • ${new Date(m.created_at).toLocaleString()}
+       </div>${escapeHtml(m.text)}`;
+    chatList.appendChild(d);
   });
-  chatList.scrollTop=chatList.scrollHeight; saveState(); refreshAllKPIs();
+  chatList.scrollTop = chatList.scrollHeight;
 }
 
 /* ===== Personnes ===== */
-document.getElementById("tab-personnes").addEventListener("click",e=>{
-  const b=e.target.closest("[data-people]"); if(!b) return; const [k,d]=b.dataset.people.split(":");
-  state.people[k]=Math.max(0,(state.people[k]||0)+Number(d)); saveState(); renderPeople();
+function renderPeople(){
+  const c=People.clients||0, s=People.staff||0;
+  document.getElementById("count-clients").textContent=c;
+  document.getElementById("count-staff").textContent=s;
+  document.getElementById("count-total").textContent=c+s;
+}
+
+/* ===== KPI ===== */
+function refreshKPIs(){
+  const openTech=Intervs.filter(i=>i.assigne==="Techniciens" && i.status!=="Terminée").length;
+  const openMen =Intervs.filter(i=>i.assigne==="Ménage"      && i.status!=="Terminée").length;
+  document.getElementById("kpi-interv-tech").textContent=openTech;
+  document.getElementById("kpi-interv-men").textContent=openMen;
+  document.getElementById("kpi-people").textContent=(People.clients||0)+(People.staff||0);
+  // “non lus” simplifié = derniers messages (pas de tracking par utilisateur ici)
+  document.getElementById("kpi-chat").textContent=Math.max(0, Chat.length - 0);
+}
+
+/* ===== Export CSV ===== */
+document.getElementById("exportCsv")?.addEventListener("click", ()=>{
+  const rows = [
+    ["ID","Type","Prio","Lieu","Detail","Assigné","Statut","Créé le","Pris par","Clients présents","Entrée autorisée"]
+  ].concat(Intervs.map(i=>[
+    i.short_id || String(i.id).slice(-6), i.type, i.prio, i.lieu, i.detail, i.assigne, i.status,
+    i.created_at, i.handled_by||"", i.clients_present?"Oui":"Non", i.entry_allowed?"Oui":"Non"
+  ]));
+  const csv = rows.map(r=>r.map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(",")).join("\n");
+  const blob = new Blob([csv],{type:"text/csv;charset=utf-8;"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = "interventions.csv"; a.click();
 });
-function renderPeople(){ const c=state.people.clients||0, s=state.people.staff||0;
-  document.getElementById("count-clients").textContent=c; document.getElementById("count-staff").textContent=s; document.getElementById("count-total").textContent=c+s; }
 
-/* ===== Utils ===== */
-function escapeHtml(s){ return (s||"").replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c])); }
-
-/* ===== Users (Admin) ===== */
+/* ===== Users (Admin) — démo locale ===== */
 const userForm=document.getElementById("userForm"), userList=document.getElementById("userList");
-userForm.addEventListener("submit", e=>{ e.preventDefault(); const f=new FormData(userForm);
+userForm?.addEventListener("submit", e=>{ e.preventDefault(); const f=new FormData(userForm);
   const ok=addUser(f.get("u").trim(), f.get("p").trim(), f.get("r")); if(!ok) alert("Identifiant déjà utilisé.");
   userForm.reset(); renderUsers();
 });
@@ -857,32 +1218,12 @@ function renderUsers(){ const c=current(); if(!c || c.role!=="Admin") return; co
 }
 userList?.addEventListener("click", e=>{ const b=e.target.closest("[data-del]"); if(!b) return; delUser(b.dataset.del); renderUsers(); });
 
-/* ===== KPI ===== */
-function refreshAllKPIs(){
-  const openTech=state.interventions.filter(i=>i.assigne==="Techniciens" && i.status!=="Terminée").length;
-  const openMen=state.interventions.filter(i=>i.assigne==="Ménage" && i.status!=="Terminée").length;
-  document.getElementById("kpi-interv-tech").textContent=openTech;
-  document.getElementById("kpi-interv-men").textContent=openMen;
-  document.getElementById("kpi-people").textContent=state.people.clients + state.people.staff;
-  document.getElementById("kpi-chat").textContent=state.chat.filter(m=>!m.read).length;
-}
-
-/* ===== Init + demo seed ===== */
-window.addEventListener("DOMContentLoaded",()=>{ setGreeting(); enforceAuthUI(); loadState(); refreshAllKPIs(); renderInterventions(); renderChat(); renderPeople(); });
-if(!localStorage.getItem(SKEY)){
-  state.interventions=[
-    { id:"1001", type:"Technique", prio:"Urgente", lieu:"Bungalow A12", detail:"Panne clim", status:"Assignée", assigne:"Techniciens",
-      created:new Date().toISOString(), createdBy:"admin (Admin)", handledBy:null,
-      history:[{action:"Créée",by:"admin (Admin)",at:new Date().toISOString()},{action:"Assignée à Techniciens",by:"admin (Admin)",at:new Date().toISOString()}]},
-    { id:"1002", type:"Ménage", prio:"Normale", lieu:"Sanitaires B", detail:"Re-stock papier", status:"Assignée", assigne:"Ménage",
-      created:new Date().toISOString(), createdBy:"admin (Admin)", handledBy:null,
-      history:[{action:"Créée",by:"admin (Admin)",at:new Date().toISOString()},{action:"Assignée à Ménage",by:"admin (Admin)",at:new Date().toISOString()}]},
-  ];
-  state.chat=[{id:1, role:"Réception", user:"rec_demo", channel:"general", text:"Bienvenue 👋", when:new Date().toISOString(), read:false}];
-  state.people={clients:86, staff:12}; localStorage.setItem(SKEY, JSON.stringify(state));
-}
+/* ===== Init ===== */
+window.addEventListener("DOMContentLoaded", () => {
+  setGreeting();
+  enforceAuthUI();
+});
 </script>
+
 </body>
 </html>
-
-
