@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Dashboard Camping La Plage</title>
+  <title>Dashboard Camping — Salariés</title>
   <style>
     /* ===== Palette claire ===== */
     :root{
@@ -552,46 +552,39 @@
 
     // -> Signup avec "invitation" (table invites)
     async function signupWithInvite(email, password){
-      // 1/ Vérifier une invite active
-      const { data: invites, error: invErr } = await sb
-        .from("invites")
-        .select("id, role, used")
-        .eq("email", email.toLowerCase())
-        .eq("used", false)
-        .limit(1);
+  // 1) Vérifier une invitation active
+  const { data: invites, error: invErr } = await sb
+    .from("invites")
+    .select("id, role, used")
+    .eq("email", String(email).toLowerCase())
+    .eq("used", false)
+    .limit(1);
 
-      if (invErr) throw invErr;
-      if (!invites || invites.length === 0) throw new Error("Aucune invitation active pour cet email.");
+  if (invErr) throw invErr;
+  if (!invites || invites.length === 0) {
+    throw new Error("Aucune invitation active pour cet email.");
+  }
+  const invite = invites[0];
 
-      const invite = invites[0];
+  // 2) Créer le compte (si “Confirm email” est activé, il n’y aura pas de session tout de suite)
+  const { data: sign, error: sErr } = await sb.auth.signUp({ email, password });
+  if (sErr) throw sErr;
 
-      // 2/ Créer le compte
-      const { data: sign, error: sErr } = await sb.auth.signUp({
-        email,
-        password
-      });
-      if (sErr) throw sErr;
-      const uid = sign.user.id;
+  // 3) (facultatif) Marquer l’invitation utilisée
+  const { error: uErr } = await sb
+    .from("invites")
+    .update({ used: true, used_at: new Date().toISOString() })
+    .eq("id", invite.id);
+  if (uErr) console.warn("update invite failed:", uErr);
 
-      // 3/ Créer/mettre à jour le profil (role)
-      const { error: pErr } = await sb
-        .from("profiles")
-        .upsert({ id: uid, role: invite.role }, { onConflict: "id" });
-      if (pErr) throw pErr;
-
-      // 4/ Marquer l'invite "used"
-      const { error: uErr } = await sb
-        .from("invites")
-        .update({ used: true })
-        .eq("id", invite.id);
-      if (uErr) throw uErr;
-
-      // 5/ Poser la session locale (comme avant)
-      localStorage.setItem("demo-dashboard-session", JSON.stringify({
-        userId: email.split("@")[0], role: invite.role, when: Date.now()
-      }));
-    }
-    window._signupWithInvite = signupWithInvite;
+  // 4) Poser la “session” locale utilisée par l’UI existante
+  localStorage.setItem("demo-dashboard-session", JSON.stringify({
+    userId: String(email).split("@")[0],
+    role: invite.role,
+    when: Date.now()
+  }));
+}
+window._signupWithInvite = signupWithInvite;
 
     // 2) Hooks UI de signup
     document.getElementById("showSignUp")?.addEventListener("click",(e)=>{
@@ -780,7 +773,26 @@ function enforceAuthUI(){
     document.body.classList.remove("is-auth"); history.replaceState({app:false}, "", "#login");
   }
 }
+function maybeLoadInvites(){
+  if(!isLogged()) return;
+  const c = current();
+  if (c && (c.role === "Admin" || c.role === "Réception")) {
+    // chargement silencieux si la page Invitations est visible
+    if (typeof loadInvites === "function") loadInvites();
+  }
+}
 
+// On “wrap” enforceAuthUI pour déclencher le refresh des invitations
+const __enforce = enforceAuthUI;
+enforceAuthUI = function(){
+  __enforce();
+  maybeLoadInvites();
+};
+
+// Et on écoute l’état Auth Supabase (utile si tu te connectes/déconnectes via Supabase)
+sb.auth.onAuthStateChange((_event, _session)=>{
+  if (isLogged()) maybeLoadInvites();
+});
 /* ====== Login events ====== */
 document.getElementById("login-form").addEventListener("submit", async (e)=>{
   e.preventDefault();
@@ -1227,4 +1239,3 @@ window.addEventListener("DOMContentLoaded", () => {
 
 </body>
 </html>
-
